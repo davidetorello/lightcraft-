@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use lightcraft_catalog::{PhotoId, Source};
 use lightcraft_develop::DevelopSettings;
-use lightcraft_merge::{Deghost, Frame, HdrOptions, PanoOptions, Projection};
+use lightcraft_merge::{Deghost, Frame, HdrOptions, PanoOptions, Projection, StarStackOptions, StarTrailsOptions};
 use lightcraft_pipeline::{Quality, RenderRequest, SourceInfo};
 use lightcraft_raster::{Rgb32f, Rgba8};
 use serde::{Deserialize, Serialize};
@@ -38,6 +38,14 @@ pub enum MergeKind {
         pano: PanoOptions,
         bracket: usize,
     },
+    /// Sigma-clipped stacking for astrophotography.
+    StarStack {
+        star: StarStackOptions,
+    },
+    /// Per-pixel maximum accumulation for star trails.
+    StarTrails {
+        star: StarTrailsOptions,
+    },
 }
 
 impl MergeKind {
@@ -46,6 +54,8 @@ impl MergeKind {
             MergeKind::Hdr { .. } => "HDR",
             MergeKind::Panorama { .. } => "Pano",
             MergeKind::HdrPanorama { .. } => "HDR-Pano",
+            MergeKind::StarStack { .. } => "StarStack",
+            MergeKind::StarTrails { .. } => "StarTrails",
         }
     }
     fn min_photos(&self) -> usize {
@@ -201,6 +211,30 @@ impl MergeJob {
                     None,
                 )
             }
+            MergeKind::StarStack { star } => {
+                let frames = self.load(false, progress, (0.0, 0.35))?;
+                let color = frames.first().map(|f| f.color.clone()).unwrap_or_default();
+                let orientation = frames.first().map(|f| f.orientation).unwrap_or(lightcraft_geom::Orientation::Normal);
+                let metadata = frames.first().map(|f| f.metadata.clone()).unwrap_or_default();
+                let baseline = frames.first().map(|f| f.baseline_exposure).unwrap_or(0.0);
+                let imgs: Vec<_> = frames.into_iter().map(|f| f.image).collect();
+                let p = |f: f32, s: &str| progress(0.35 + 0.55 * f, s);
+                let r = lightcraft_merge::merge_star_stack(imgs, star, &p).map_err(|e| e.to_string())?;
+                let info = serde_json::json!({ "framesUsed": r.frames_used });
+                (r.image, color, orientation, metadata, baseline, lightcraft_merge::DngSamples::U16, None, info, None)
+            }
+            MergeKind::StarTrails { star } => {
+                let frames = self.load(false, progress, (0.0, 0.35))?;
+                let color = frames.first().map(|f| f.color.clone()).unwrap_or_default();
+                let orientation = frames.first().map(|f| f.orientation).unwrap_or(lightcraft_geom::Orientation::Normal);
+                let metadata = frames.first().map(|f| f.metadata.clone()).unwrap_or_default();
+                let baseline = frames.first().map(|f| f.baseline_exposure).unwrap_or(0.0);
+                let imgs: Vec<_> = frames.into_iter().map(|f| f.image).collect();
+                let p = |f: f32, s: &str| progress(0.35 + 0.55 * f, s);
+                let r = lightcraft_merge::merge_star_trails(imgs, star, &p).map_err(|e| e.to_string())?;
+                let info = serde_json::json!({ "framesUsed": r.frames_used });
+                (r.image, color, orientation, metadata, baseline, lightcraft_merge::DngSamples::U16, None, info, None)
+            }
         };
         if !progress(0.9, "Writing DNG") {
             return Err("cancelled".into());
@@ -330,6 +364,14 @@ pub fn parse(id: &str, p: &Value) -> Result<(MergeKind, MergeFinish)> {
     let kind = match id {
         "merge.hdr" => MergeKind::Hdr { hdr },
         "merge.panorama" => MergeKind::Panorama { pano },
+        "merge.starStack" => {
+            let star: StarStackOptions = serde_json::from_value(p.get("star").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("star: {e}")))?;
+            MergeKind::StarStack { star }
+        }
+        "merge.starTrails" => {
+            let star: StarTrailsOptions = serde_json::from_value(p.get("star").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("star: {e}")))?;
+            MergeKind::StarTrails { star }
+        }
         _ => MergeKind::HdrPanorama { hdr, pano, bracket: p.get("bracket").and_then(Value::as_u64).unwrap_or(0) as usize },
     };
     let finish = MergeFinish {

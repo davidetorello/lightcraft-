@@ -21,12 +21,14 @@ pub mod linalg;
 pub mod output;
 pub mod pano;
 pub mod ransac;
+pub mod star;
 pub mod synth;
 
 pub use frame::{Frame, FrameColor, load_frame};
 pub use hdr::{Deghost, HdrOptions, HdrResult, merge_hdr};
 pub use output::{DngSamples, write_linear_dng};
 pub use pano::{PanoOptions, PanoResult, Projection, stitch};
+pub use star::{StarResult, StarStackOptions, StarTrailsOptions, merge_star_stack, merge_star_trails};
 
 #[derive(Debug, Clone, PartialEq, thiserror::Error)]
 pub enum MergeError {

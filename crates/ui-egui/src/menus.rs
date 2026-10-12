@@ -172,6 +172,10 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("merge.hdrLast", "HDR with Last Settings", Some("Ctrl+Shift+H"), "Photo>Photo Merge"),
     ("merge.panoramaLast", "Panorama with Last Settings", Some("Ctrl+Shift+M"), "Photo>Photo Merge"),
     ("merge.hdrPanoramaLast", "HDR Panorama with Last Settings", None, "Photo>Photo Merge"),
+    ("dialog.mergeStarStack",  "Star Stack…",                   None, "Photo>Photo Merge"),
+    ("dialog.mergeStarTrails", "Star Trails…",                  None, "Photo>Photo Merge"),
+    ("merge.starStackLast",    "Star Stack with Last Settings",    None, "Photo>Photo Merge"),
+    ("merge.starTrailsLast",   "Star Trails with Last Settings",   None, "Photo>Photo Merge"),
     ("file.addPhotos", "Import Photos…", Some("Cmd+Shift+I"), "File"),
     ("file.addFolder", "Import from Folder…", None, "File"),
     ("file.importLightroom", "Import Lightroom Catalog…", None, "File"),
@@ -1200,6 +1204,10 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
         "merge.hdrLast" => crate::merge::start_last(app, "merge.hdr"),
         "merge.panoramaLast" => crate::merge::start_last(app, "merge.panorama"),
         "merge.hdrPanoramaLast" => crate::merge::start_last(app, "merge.hdrPanorama"),
+        "merge.starStackLast"    => crate::merge::start_last(app, "merge.starStack"),
+        "merge.starTrailsLast"   => crate::merge::start_last(app, "merge.starTrails"),
+        "dialog.mergeStarStack"  => crate::merge::open(app, "merge.starStack"),
+        "dialog.mergeStarTrails" => crate::merge::open(app, "merge.starTrails"),
         "dialog.mergeHdr" => crate::merge::open(app, "merge.hdr"),
         "dialog.faceModel" => {
             let path = match p.get("path").and_then(Value::as_str) {

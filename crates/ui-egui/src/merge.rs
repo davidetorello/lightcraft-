@@ -66,14 +66,19 @@ impl MergeDialog {
         match self.command.as_str() {
             "merge.panorama" => "Panorama Merge Preview",
             "merge.hdrPanorama" => "HDR Panorama Merge Preview",
+            "merge.starStack" => "Star Stack Preview",
+            "merge.starTrails" => "Star Trails Preview",
             _ => "HDR Merge Preview",
         }
     }
     pub fn is_hdr(&self) -> bool {
-        self.command != "merge.panorama"
+        matches!(self.command.as_str(), "merge.hdr" | "merge.hdrPanorama")
     }
     pub fn is_pano(&self) -> bool {
-        self.command != "merge.hdr"
+        matches!(self.command.as_str(), "merge.panorama" | "merge.hdrPanorama")
+    }
+    pub fn is_star(&self) -> bool {
+        matches!(self.command.as_str(), "merge.starStack" | "merge.starTrails")
     }
     pub fn params(&self) -> Value {
         serde_json::to_value(self).unwrap_or_default()
@@ -260,12 +265,12 @@ pub fn poll(app: &mut LightcraftApp, ctx: &egui::Context) {
         match t.rx.try_recv() {
             Ok(r) => {
                 let Some(t) = app.merge.final_task.take() else { return };
-                let what = if t.options.command == "merge.panorama" {
-                    "Panorama"
-                } else if t.options.command == "merge.hdrPanorama" {
-                    "HDR panorama"
-                } else {
-                    "HDR"
+                let what = match t.options.command.as_str() {
+                    "merge.panorama" => "Panorama",
+                    "merge.hdrPanorama" => "HDR panorama",
+                    "merge.starStack" => "Star Stack",
+                    "merge.starTrails" => "Star Trails",
+                    _ => "HDR",
                 };
                 match r.map_err(lightcraft_engine::EngineError::Other).and_then(|out| app.session.finish_merge(&t.job, out)) {
                     Ok(v) => {
@@ -383,6 +388,20 @@ pub fn body(app: &mut LightcraftApp, ui: &mut egui::Ui, opts: &mut MergeDialog) 
                 }
                 ui.add_space(4.0);
             }
+            if opts.is_star() {
+                ui.checkbox(&mut opts.align, crate::i18n::tr("Auto Align"));
+                if opts.command == "merge.starStack" {
+                    // Re-use the boundary_warp field to hold sigma for star stack.
+                    if opts.boundary_warp == 0.0 {
+                        opts.boundary_warp = 2.5;
+                    }
+                    let mut sigma = opts.boundary_warp;
+                    if num(ui, &STAR_SIGMA, &mut sigma) {
+                        opts.boundary_warp = sigma;
+                    }
+                }
+                ui.add_space(4.0);
+            }
             ui.checkbox(&mut opts.auto_settings, crate::i18n::tr("Auto Settings"));
             ui.checkbox(&mut opts.stack, crate::i18n::tr("Create Stack"));
             ui.add_space(8.0);
@@ -411,6 +430,18 @@ const BRACKET: lightcraft_develop::ControlSpec = lightcraft_develop::ControlSpec
     default: 0.0,
     step: 1.0,
     decimals: 0,
+    track: lightcraft_develop::Track::Plain,
+};
+
+const STAR_SIGMA: lightcraft_develop::ControlSpec = lightcraft_develop::ControlSpec {
+    id: "merge.starSigma",
+    label: "Sigma Clipping",
+    section: lightcraft_develop::Section::Light,
+    min: 1.0,
+    max: 5.0,
+    default: 2.5,
+    step: 0.1,
+    decimals: 1,
     track: lightcraft_develop::Track::Plain,
 };
 
