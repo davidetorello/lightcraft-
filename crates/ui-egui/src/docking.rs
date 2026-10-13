@@ -423,6 +423,8 @@ pub fn show(app: &mut crate::LightcraftApp, ui: &mut egui::Ui) {
     style.accent = t.accent;
     style.font = t.font(12.0);
     // Tool and preset panels publish hover previews before the photo consumes them.
+    // the thin gaps between panels show this, not the window's clear colour
+    ui.painter().rect_filled(ui.max_rect(), 0.0, t.divider);
     let mut canvas = None;
     let output = DockArea::new(egui::Id::new("lightcraft-docking")).show_with_limits(
         ui,

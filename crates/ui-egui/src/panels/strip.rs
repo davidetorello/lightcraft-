@@ -31,11 +31,8 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
                 for (id, icon, panel, tip) in [
                     ("edit", Icon::Sliders, RightPanel::Edit, "Edit (E)"),
                     ("crop", Icon::Crop, RightPanel::Crop, "Crop & Rotate (C)"),
-                    ("remove", Icon::Eraser, RightPanel::Remove, "Remove (H)"),
-                    ("masking", Icon::Mask, RightPanel::Masking, "Masking (M)"),
-                    ("redeye", Icon::Eye, RightPanel::RedEye, "Red Eye"),
                 ] {
-                    let on = app.ui.right == panel || (panel == RightPanel::Edit && app.ui.right == RightPanel::Profiles);
+                    let on = app.ui.right == panel || (panel == RightPanel::Edit && matches!(app.ui.right, RightPanel::Profiles | RightPanel::Masking));
                     if icon_button(ui, id, icon, sz, on, has_photo, tip).clicked() {
                         let _ = app.run(&format!("panel.{id}"), json!({}));
                     }

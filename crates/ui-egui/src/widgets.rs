@@ -120,12 +120,13 @@ fn track_stops(track: &Track) -> Option<Vec<Color32>> {
     })
 }
 
-fn paint_track(ui: &Ui, rect: Rect, track: &Track, t: &Tokens, thumb_x: f32, ring: f32) {
+fn paint_track(ui: &Ui, rect: Rect, track: &Track, t: &Tokens, thumb_x: f32, origin_x: f32, enabled: bool) {
     let p = ui.painter();
     let y = rect.center().y;
-    let h = 1.0;
+    // a thin, fully rounded rail; the colour tracks (white balance, hue…) keep their gradient
+    let h = 1.5;
+    let round = h;
     if let Some(stops) = track_stops(track) {
-        // gradient: segments between stops
         let n = stops.len().max(2) - 1;
         let steps = 48;
         for i in 0..steps {
@@ -135,13 +136,24 @@ fn paint_track(ui: &Ui, rect: Rect, track: &Track, t: &Tokens, thumb_x: f32, rin
             let c = lerp(stops[seg.min(n)], stops[(seg + 1).min(n)], local);
             let x0 = rect.left() + rect.width() * a;
             let x1 = rect.left() + rect.width() * b;
-            p.rect_filled(Rect::from_min_max(pos2(x0, y - h - 0.5), pos2(x1 + 0.5, y + h + 0.5)), 0.0, c);
+            let r = if i == 0 {
+                egui::CornerRadius { nw: round as u8, sw: round as u8, ne: 0, se: 0 }
+            } else if i + 1 == steps {
+                egui::CornerRadius { nw: 0, sw: 0, ne: round as u8, se: round as u8 }
+            } else {
+                egui::CornerRadius::ZERO
+            };
+            p.rect_filled(Rect::from_min_max(pos2(x0, y - h), pos2(x1 + 0.5, y + h)), r, c);
         }
     } else {
-        p.rect_filled(Rect::from_min_max(pos2(rect.left(), y - h), pos2(rect.right(), y + h)), 1.0, t.track);
+        p.rect_filled(Rect::from_min_max(pos2(rect.left(), y - h), pos2(rect.right(), y + h)), round, t.track);
+        // the part between the neutral value and the thumb is filled with the accent
+        let (a, b) = if thumb_x < origin_x { (thumb_x, origin_x) } else { (origin_x, thumb_x) };
+        if b - a > 0.5 {
+            let fill = if enabled { t.accent } else { t.track };
+            p.rect_filled(Rect::from_min_max(pos2(a, y - h), pos2(b, y + h)), round, fill);
+        }
     }
-    // gap around the hollow thumb
-    p.rect_filled(Rect::from_center_size(pos2(thumb_x, y), vec2(ring * 2.0 + 4.0, 6.0)), 0.0, t.chrome);
 }
 
 /// Result of a slider interaction this frame.
@@ -170,7 +182,8 @@ pub(crate) fn shown_value(spec: &ControlSpec, v: f64) -> String {
     if shown == "+0" || shown == "-0" { "0".to_string() } else { shown }
 }
 
-/// A Lightroom slider row (label + value above a track with a hollow ring thumb).
+/// A slider row: label and value above a thin rail with a small round thumb (the rail is filled with
+/// the accent between the neutral value and the thumb, and the thumb glides when the value jumps).
 /// Double-click the label or thumb to reset. Shift-drag = fine adjustment. Click the value to
 /// type one: Return or clicking away applies it, Esc keeps the old one.
 pub fn slider(ui: &mut Ui, spec: &ControlSpec, value: f64, enabled: bool, label_override: Option<&str>) -> SliderOut {
@@ -349,19 +362,43 @@ pub fn slider(ui: &mut Ui, spec: &ControlSpec, value: f64, enabled: bool, label_
             ui.ctx().set_cursor_icon(egui::CursorIcon::Text);
         }
     }
-    let ring = 7.0;
-    let tx = to_x(v);
-    paint_track(ui, track_rect, &spec.track, &t, tx, ring);
+    // the thumb glides to a new value (click, arrow keys, reset) and follows the pointer exactly
+    // while it is dragged
+    let target_x = to_x(v);
+    let tx = if resp.dragged() || typing.is_some() {
+        ui.data_mut(|d| d.insert_temp(id.with("thumb-x"), target_x));
+        target_x
+    } else {
+        let from = ui.data(|d| d.get_temp::<f32>(id.with("thumb-x"))).unwrap_or(target_x);
+        // exponential approach, about 70 ms to settle
+        let dt = ui.input(|i| i.stable_dt).min(0.05);
+        let next = from + (target_x - from) * (1.0 - (-dt * 28.0).exp());
+        let next = if (target_x - next).abs() < 0.2 { target_x } else { next };
+        ui.data_mut(|d| d.insert_temp(id.with("thumb-x"), next));
+        if next != target_x {
+            ui.ctx().request_repaint();
+        }
+        next
+    };
+    let origin_x = to_x(spec.default.clamp(spec.min, spec.max));
+    paint_track(ui, track_rect, &spec.track, &t, tx, origin_x, enabled);
+    let grow = ui.ctx().animate_bool_with_time(id.with("thumb-grow"), hovered && enabled, 0.12);
+    let ring = 5.0 + 1.5 * grow;
+    let centre = pos2(tx, track_rect.center().y);
     let p = ui.painter();
-    let ring_c = if !enabled {
-        t.text_disabled
-    } else if hovered {
+    if enabled {
+        // a soft lift under the thumb
+        p.circle_filled(centre + vec2(0.0, 1.5), ring + 1.5, Color32::from_black_alpha(if t.chrome.r() < 128 { 70 } else { 34 }));
+    }
+    let fill = if !enabled {
+        t.field_border
+    } else if t.chrome.r() < 128 {
         t.thumb_hover
     } else {
-        t.thumb
+        Color32::WHITE
     };
-    p.circle_filled(pos2(tx, track_rect.center().y), ring, t.chrome);
-    p.circle_stroke(pos2(tx, track_rect.center().y), ring, Stroke::new(2.0, ring_c));
+    p.circle_filled(centre, ring, fill);
+    p.circle_stroke(centre, ring, Stroke::new(if enabled { 1.5 } else { 1.0 }, if enabled { t.accent } else { t.text_disabled }));
     if hovered {
         ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
     }

@@ -373,7 +373,7 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
     let Some(photo) = app.session.catalog.photo(id).cloned() else { return };
     let d = (*photo.develop).clone();
     // the full-screen preview shows the photo only: no tool overlays
-    let right = if fullscreen { RightPanel::None } else { app.ui.right };
+    let right = if fullscreen { RightPanel::None } else { effective_right(app) };
     let crop_tool = right == RightPanel::Crop;
     let frame = Frame::with_lens(photo.width.max(1) as usize, photo.height.max(1) as usize, &d, !crop_tool, photo.embedded_lens.as_ref());
     let aspect = frame.aspect() as f32;
@@ -1118,6 +1118,19 @@ fn targeted_drag(app: &mut LightcraftApp, resp: &egui::Response, map: &CanvasMap
     }
 }
 
+/// The panel the loupe behaves as. Masks sit at the top of the one Edit page, so while a mask is
+/// selected (or a mask tool is armed) the Edit page lets the photo take mask input, exactly as
+/// the Masking panel does; any other tool (white balance, crop…) keeps the plain Edit behaviour.
+pub(crate) fn effective_right(app: &LightcraftApp) -> RightPanel {
+    let right = app.ui.right;
+    if right != RightPanel::Edit {
+        return right;
+    }
+    let tool = app.ui.tool.as_str();
+    let mask_tool = matches!(tool, "brush" | "linear" | "radial" | "colorRange" | "object" | "prompt");
+    if mask_tool || (tool.is_empty() && app.session.active_mask.is_some()) { RightPanel::Masking } else { right }
+}
+
 /// The diagnostic overlay the loupe shows (the selected mask, Point Color's visualized range,
 /// Visualize Spots).
 pub(crate) fn view_overlay(app: &LightcraftApp, d: &DevelopSettings) -> lightcraft_pipeline::Overlay {
@@ -1125,7 +1138,7 @@ pub(crate) fn view_overlay(app: &LightcraftApp, d: &DevelopSettings) -> lightcra
     if app.ui.fullscreen {
         return Overlay::None;
     }
-    if app.ui.right == RightPanel::Masking
+    if effective_right(app) == RightPanel::Masking
         && app.ui.mask_overlay
         && let Some(m) = app.session.active_mask.and_then(|id| d.masks.iter().find(|m| m.id == id))
         && !m.components.is_empty()

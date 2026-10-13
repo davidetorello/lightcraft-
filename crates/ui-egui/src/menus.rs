@@ -98,7 +98,6 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("view.maskOverlayMode", "Cycle Mask Overlay Mode", None, "View"),
     ("view.maskOverlayColor", "Cycle Mask Overlay Color", None, "View"),
     ("view.maskPins", "Show Mask Pins", None, "View"),
-    ("view.visualizeSpots", "Visualize Spots", Some("A"), "View"),
     ("view.cropOverlay", "Cycle Crop Overlay", Some("Shift+O"), "View"),
     ("view.cropOverlayOrientation", "Cycle Crop Overlay Orientation", None, "View"),
     ("view.back", "Back to Grid", Some("Escape"), ""),
@@ -115,9 +114,7 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("panel.edit", "Edit", Some("E"), "Window"),
     ("panel.profiles", "Profile Browser", None, "Window"),
     ("panel.crop", "Crop & Rotate", Some("C"), "Window"),
-    ("panel.remove", "Remove", Some("H"), "Window"),
     ("panel.masking", "Masking", Some("M"), "Window"),
-    ("panel.redeye", "Red Eye", None, "Window"),
     ("panel.presets", "Presets", Some("Shift+P"), "Window"),
     ("panel.info", "Info", Some("I"), "Window"),
     ("panel.keywords", "Keywords", Some("K"), "Window"),
@@ -207,12 +204,6 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("app.openLogFolder", "Open Log Folder", None, "Help"),
     ("app.whatsNew", "What's New", None, "Help"),
     ("dialog.cull", "Assisted Culling…", None, "Photo"),
-    ("app.help", "LightCraft Help", Some("F1"), "Help"),
-    ("app.discord", "Join the ArtCraft Discord…", None, "Help"),
-    ("app.feedback", "Send Feedback…", None, "Help"),
-    ("app.website", "LightCraft Website", None, "Help"),
-    ("app.github", "LightCraft on GitHub", None, "Help"),
-    ("app.artcraft", "ArtCraft Website", None, "Help"),
     ("app.shortcuts", "Keyboard Shortcuts", Some("Cmd+/"), "Help"),
     ("app.setShortcut", "Set Keyboard Shortcut", None, ""),
     ("app.resetShortcuts", "Reset All Keyboard Shortcuts", None, ""),
@@ -875,16 +866,6 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
             app.ui.mask_pins = p.get("show").and_then(Value::as_bool).unwrap_or(!app.ui.mask_pins);
             Ok(json!({"maskPins": app.ui.mask_pins}))
         }
-        "view.visualizeSpots" => {
-            // like Lightroom's A: opens the Remove tool with the view on, or toggles it there
-            if app.ui.right == RightPanel::Remove {
-                app.ui.visualize_spots = !app.ui.visualize_spots;
-            } else {
-                app.ui.right = RightPanel::Remove;
-                app.ui.visualize_spots = true;
-            }
-            Ok(Value::Null)
-        }
         "view.cropOverlay" => {
             use crate::state::CropOverlay::*;
             app.ui.crop_overlay = match app.ui.crop_overlay {
@@ -961,19 +942,8 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
             panel(app, &ctx, RightPanel::Crop, "Crop, Rotate, Geometry");
             Ok(Value::Null)
         }
-        "panel.remove" => {
-            panel(app, &ctx, RightPanel::Remove, "Remove");
-            if app.ui.right == RightPanel::Remove && app.ui.tool.is_empty() {
-                app.ui.tool = "remove".into();
-            }
-            Ok(Value::Null)
-        }
         "panel.masking" => {
             panel(app, &ctx, RightPanel::Masking, "Masking");
-            Ok(Value::Null)
-        }
-        "panel.redeye" => {
-            panel(app, &ctx, RightPanel::RedEye, "Red Eye");
             Ok(Value::Null)
         }
         "panel.info" => {
@@ -1793,10 +1763,6 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
         "app.export" => crate::control::export_active(app, p),
         "app.showInFinder" => show_in_finder(app),
         "app.openLogFolder" => open_log_folder(app),
-        "app.discord" | "app.website" | "app.github" | "app.artcraft" | "app.help" | "app.feedback" => {
-            let url = crate::links::url_of(id).unwrap_or(crate::links::WEBSITE);
-            crate::links::open(app, url)
-        }
         "app.exportPrevious" => match app.session.last_export.clone() {
             Some(prev) => crate::control::export_active(app, &lightcraft_engine::export::ExportOptions::known_keys_only(&prev)),
             None => Err("nothing exported yet — use Export…".into()),

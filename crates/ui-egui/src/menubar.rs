@@ -216,9 +216,7 @@ const LAYOUT: &[(&str, &[&str])] = &[
         &[
             "panel.edit",
             "panel.crop",
-            "panel.remove",
             "panel.masking",
-            "panel.redeye",
             "---",
             "panel.presets",
             "panel.versions",
@@ -233,14 +231,6 @@ const LAYOUT: &[(&str, &[&str])] = &[
     (
         "Help",
         &[
-            "app.discord",
-            "app.feedback",
-            "---",
-            "app.website",
-            "app.github",
-            "app.artcraft",
-            "---",
-            "app.whatsNew",
             "app.shortcuts",
             "app.systemInfo",
             "app.openLogFolder",
@@ -333,9 +323,7 @@ pub fn checked(app: &LightcraftApp, id: &str) -> Option<bool> {
         "panel.edit" => panel(RightPanel::Edit),
         "panel.profiles" => panel(RightPanel::Profiles),
         "panel.crop" => panel(RightPanel::Crop),
-        "panel.remove" => panel(RightPanel::Remove),
         "panel.masking" => panel(RightPanel::Masking),
-        "panel.redeye" => panel(RightPanel::RedEye),
         "panel.versions" => panel(RightPanel::Versions),
         "panel.activity" => panel(RightPanel::Activity),
         "panel.info" => panel(RightPanel::Info),
@@ -1213,16 +1201,8 @@ mod tests {
     }
 
     #[test]
-    fn help_opens_the_docs_and_merge_last_needs_photos() {
+    fn merge_last_needs_photos() {
         let mut app = app();
-        let opened = std::sync::Arc::new(std::sync::Mutex::new(Vec::<String>::new()));
-        let o = opened.clone();
-        app.services.open_url = Some(Box::new(move |u: &str| {
-            o.lock().unwrap().push(u.to_string());
-            Ok(())
-        }));
-        run_item(&mut app, "app.help", Value::Null).unwrap();
-        assert_eq!(opened.lock().unwrap().as_slice(), [crate::links::HELP]);
         // merging with the last settings needs a selection of two or more
         let first = app.session.visible()[0].0;
         app.session.execute("library.select", &json!({"ids": [first]})).unwrap();

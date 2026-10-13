@@ -184,63 +184,64 @@ impl Tokens {
                 ..base
             },
             ThemeKind::Silver => Tokens {
-                chrome: rgb(0xe6e6e6),
-                canvas: rgb(0xcfcfcf),
-                grid_bg: rgb(0xd9d9d9),
-                cell: rgb(0xcbcbcb),
-                cell_selected: rgb(0xb4b4b4),
-                divider: rgb(0xc4c4c4),
-                inset: rgb(0xdcdcdc),
-                field: rgb(0xf6f6f6),
-                field_border: rgb(0xb8b8b8),
-                button: rgb(0xf2f2f2),
-                button_border: rgb(0xb0b0b0),
-                hover: rgb(0xd2d2d2),
-                pressed: rgb(0xc4c4c4),
-                tool_active: rgb(0xcacaca),
-                text: rgb(0x1c1c1c),
-                text_label: rgb(0x383838),
-                text_dim: rgb(0x6a6a6a),
-                text_disabled: rgb(0xa2a2a2),
-                icon: rgb(0x555555),
-                track: rgb(0xa8a8a8),
-                thumb: rgb(0x5e5e5e),
-                thumb_hover: rgb(0x262626),
-                accent: rgb(0x0a62d0),
-                star: rgb(0x3a3a3a),
-                pick: rgb(0x2a2a2a),
-                reject: rgb(0xc83434),
-                caution: rgb(0xb0761a),
+                chrome: rgb(0xe9ecf2),
+                canvas: rgb(0xd6dae3),
+                grid_bg: rgb(0xdde1ea),
+                cell: rgb(0xd0d5df),
+                cell_selected: rgb(0xb9c4de),
+                divider: rgb(0xd0d5e0),
+                inset: rgb(0xdfe3ec),
+                field: rgb(0xf8f9fc),
+                field_border: rgb(0xbfc6d4),
+                button: rgb(0xf4f6fa),
+                button_border: rgb(0xbcc4d3),
+                hover: rgb(0xdbe0ea),
+                pressed: rgb(0xccd3e1),
+                tool_active: rgb(0xcfd9f2),
+                text: rgb(0x151a26),
+                text_label: rgb(0x2f3747),
+                text_dim: rgb(0x687286),
+                text_disabled: rgb(0xa5adbc),
+                icon: rgb(0x4d576b),
+                track: rgb(0xbac2d2),
+                thumb: rgb(0x5b6678),
+                thumb_hover: rgb(0x1b2335),
+                accent: rgb(0x3d6bff),
+                star: rgb(0x3a4560),
+                pick: rgb(0x232b3d),
+                reject: rgb(0xd03a4a),
+                caution: rgb(0xb8791a),
                 ..base
             },
+            // Paper: bright, airy, cool white with a blue accent.
             ThemeKind::Paper => Tokens {
-                chrome: rgb(0xfafafa),
-                canvas: rgb(0xececec),
-                grid_bg: rgb(0xf2f2f2),
-                cell: rgb(0xe8e8e8),
-                cell_selected: rgb(0xd2d2d2),
-                divider: rgb(0xe0e0e0),
-                inset: rgb(0xf0f0f0),
+                chrome: rgb(0xf7f8fb),
+                canvas: rgb(0xeaedf3),
+                grid_bg: rgb(0xf1f3f8),
+                cell: rgb(0xe3e7ef),
+                cell_selected: rgb(0xcfd9ee),
+                divider: rgb(0xe4e8f0),
+                inset: rgb(0xeef1f6),
                 field: rgb(0xffffff),
-                field_border: rgb(0xcccccc),
+                field_border: rgb(0xd5dbe7),
                 button: rgb(0xffffff),
-                button_border: rgb(0xc6c6c6),
-                hover: rgb(0xebebeb),
-                pressed: rgb(0xdedede),
-                tool_active: rgb(0xe2e2e2),
-                text: rgb(0x161616),
-                text_label: rgb(0x343434),
-                text_dim: rgb(0x707070),
-                text_disabled: rgb(0xababab),
-                icon: rgb(0x585858),
-                track: rgb(0xbdbdbd),
-                thumb: rgb(0x606060),
-                thumb_hover: rgb(0x202020),
-                accent: rgb(0x0a62d0),
-                star: rgb(0x3a3a3a),
-                pick: rgb(0x2a2a2a),
-                reject: rgb(0xc83434),
-                caution: rgb(0xb0761a),
+                button_border: rgb(0xd0d7e4),
+                hover: rgb(0xedf1f9),
+                pressed: rgb(0xe0e7f5),
+                tool_active: rgb(0xdfe7fb),
+                text: rgb(0x151a26),
+                text_label: rgb(0x2f3747),
+                text_dim: rgb(0x6b7587),
+                text_disabled: rgb(0xaab2c0),
+                icon: rgb(0x4d576b),
+                track: rgb(0xd4dae6),
+                thumb: rgb(0x5b6678),
+                thumb_hover: rgb(0x1b2335),
+                accent: rgb(0x3d6bff),
+                star: rgb(0x3a4560),
+                pick: rgb(0x232b3d),
+                reject: rgb(0xd03a4a),
+                caution: rgb(0xb8791a),
                 ..base
             },
         }
@@ -373,19 +374,19 @@ pub fn apply_kind(ctx: &egui::Context, kind: ThemeKind) {
     v.window_fill = t.chrome;
     v.extreme_bg_color = t.field;
     v.faint_bg_color = t.inset;
-    v.window_stroke = Stroke::new(1.0, t.button_border);
-    v.window_corner_radius = CornerRadius::same(6);
-    v.menu_corner_radius = CornerRadius::same(6);
+    v.window_stroke = Stroke::new(1.0, if dark { t.button_border } else { t.divider });
+    v.window_corner_radius = CornerRadius::same(12);
+    v.menu_corner_radius = CornerRadius::same(10);
     v.selection.bg_fill = t.accent.gamma_multiply(0.6);
     v.selection.stroke = Stroke::new(1.0, t.accent);
     v.override_text_color = Some(t.text_label);
-    let (popup, window) = if dark { (140, 160) } else { (50, 60) };
-    v.popup_shadow = egui::epaint::Shadow { offset: [0, 4], blur: 16, spread: 0, color: Color32::from_black_alpha(popup) };
-    v.window_shadow = egui::epaint::Shadow { offset: [0, 8], blur: 30, spread: 0, color: Color32::from_black_alpha(window) };
+    let (popup, window) = if dark { (140, 160) } else { (28, 36) };
+    v.popup_shadow = egui::epaint::Shadow { offset: [0, 6], blur: 24, spread: 0, color: Color32::from_black_alpha(popup) };
+    v.window_shadow = egui::epaint::Shadow { offset: [0, 12], blur: 40, spread: 0, color: Color32::from_black_alpha(window) };
     let w = &mut v.widgets;
     craft_ui::theme::WidgetPalette { noninteractive: t.chrome, inactive: t.button, hovered: t.hover, active: t.pressed, open: t.hover }.apply_to(
         w,
-        CornerRadius::same(4),
+        CornerRadius::same(8),
         Stroke::new(1.0, t.text_label),
     );
     w.noninteractive.bg_stroke = Stroke::new(1.0, t.divider);
@@ -395,13 +396,13 @@ pub fn apply_kind(ctx: &egui::Context, kind: ThemeKind) {
     ctx.set_theme(if dark { egui::Theme::Dark } else { egui::Theme::Light });
     ctx.all_styles_mut(|s| {
         s.spacing.item_spacing = egui::vec2(6.0, 4.0);
-        s.spacing.button_padding = egui::vec2(8.0, 3.0);
+        s.spacing.button_padding = egui::vec2(10.0, 3.0);
         s.spacing.interact_size.y = 22.0;
         s.text_styles.insert(egui::TextStyle::Body, FontId::proportional(13.0));
         s.text_styles.insert(egui::TextStyle::Button, FontId::proportional(13.0));
         s.text_styles.insert(egui::TextStyle::Small, FontId::proportional(11.0));
         s.text_styles.insert(egui::TextStyle::Heading, FontId::new(16.0, FontFamily::Name(FONT_SEMIBOLD.into())));
-        s.animation_time = 0.08;
+        s.animation_time = 0.14;
     });
 }
 

@@ -34,8 +34,8 @@ cited here still exists. Formerly docs/parity.md.
 | F. Edit panel — global adjustments (EDIT) | 43 | 2 | 3 | 1 | 28/28 (100%) | 13/14 (93%) |
 | G. Profiles (PROF) | 7 | 1 | 3 | 0 | 3/4 (75%) | 3/3 (100%) |
 | H. Crop & rotate (CROP) | 9 | 0 | 0 | 1 | 6/6 (100%) | 3/3 (100%) |
-| I. Remove / healing (REM) | 8 | 1 | 2 | 2 | 4/4 (100%) | 2/3 (67%) |
-| J. Red eye (EYE) | 2 | 0 | 0 | 0 | — | 1/1 (100%) |
+| I. Remove / healing (REM) | 7 | 1 | 2 | 3 | 4/4 (100%) | 1/3 (33%) |
+| J. Red eye (EYE) | 1 | 0 | 0 | 1 | — | 0/1 (0%) |
 | K. Masking (MASK) | 13 | 5 | 5 | 0 | 7/8 (88%) | 5/5 (100%) |
 | L. Presets (PRE) | 6 | 0 | 1 | 1 | 2/2 (100%) | 2/2 (100%) |
 | M. Versions & history (VER) | 5 | 0 | 0 | 0 | 1/1 (100%) | 3/3 (100%) |
@@ -50,12 +50,12 @@ cited here still exists. Formerly docs/parity.md.
 | V. Preferences (PREF) | 6 | 2 | 2 | 2 | 1/1 (100%) | 4/5 (80%) |
 | W. Cloud & AI infrastructure (CLOUD / AI) | 1 | 0 | 1 | 2 | — | — |
 | X. Cross-cutting behaviours (BEHAV) | 23 | 6 | 1 | 1 | 8/8 (100%) | 7/10 (70%) |
-| Y. Menus | 84 | 0 | 4 | 8 | 47/47 (100%) | 23/23 (100%) |
-| Z. Keyboard shortcuts (desktop) | 76 | 3 | 3 | 1 | 49/52 (94%) | 23/24 (96%) |
+| Y. Menus | 82 | 0 | 4 | 10 | 47/47 (100%) | 23/23 (100%) |
+| Z. Keyboard shortcuts (desktop) | 73 | 3 | 3 | 4 | 48/52 (92%) | 22/24 (92%) |
 | Lightroom Classic extras | 34 | 16 | 35 | 8 | — | 24/26 (92%) |
-| **Total** | 408 | 53 | 72 | 35 | 193/201 (96%) | 145/157 (92%) |
+| **Total** | 401 | 53 | 72 | 42 | 192/201 (96%) | 142/157 (90%) |
 
-Weighted completion (✅ = 1, 🟡 = ½, 🚫 left out): **81.5%** of 533 in-scope rows — P0 98.0% of 201 · P1 95.2% of 157 · P2 50.0% of 174.
+Weighted completion (✅ = 1, 🟡 = ½, 🚫 left out): **81.3%** of 526 in-scope rows — P0 98.0% of 200 · P1 95.1% of 154 · P2 49.1% of 171.
 <!-- /parity:summary -->
 
 ## Top gaps and shortcut notes
@@ -267,7 +267,7 @@ differences and missing bindings are in [ui-parity.md](ui-parity.md#shortcuts).
 | LR-REM-DETECT | Object detection for remove | P2 | ⬜ | | |
 | LR-REM-BRUSH-PARAMS | Brush size / feather / opacity | P0 | ✅ | `cmd:spot.add` (`size`, `feather`, `opacity`), `cmd:brush.smaller`, `cmd:brush.larger`, `cmd:brush.featherLess`, `cmd:brush.featherMore`, `crates/ui-egui/src/panels/right.rs` | Size / Feather / Opacity sliders (for new spots and the selected one); `[` `]` size, ⇧`[` ⇧`]` feather (also the Masking brush) |
 | LR-REM-SPOT-EDIT | Edit existing spots | P0 | ✅ | `cmd:spot.select`, `cmd:spot.update`, `cmd:spot.refreshSource`, `cmd:spot.delete` | click a pin to select, drag target or source, ⌫ deletes the selected spot, `/` picks another source; automatic sources are resolved when the spot is added |
-| LR-REM-VISUALIZE | Visualize spots | P1 | ✅ | `cmd:view.visualizeSpots` | |
+| LR-REM-VISUALIZE | Visualize spots | P1 | 🚫 | | removed from the app by decision (editing only) |
 | LR-REM-PEOPLE | Remove people (generative) | OOS | 🚫 | | |
 | LR-REM-REFLECT | Remove reflections | P2 | ⬜ | | |
 | LR-REM-DUST | Dust detection | P2 | ✅ | `cmd:spot.findDust`, `crates/pipeline/src/dust.rs` | Remove panel ▸ Find Dust Spots: small, soft, round dark spots on smooth areas become heal spots (sensitivity; one undo step); Visualize Spots for checking by eye |
@@ -278,7 +278,7 @@ differences and missing bindings are in [ui-parity.md](ui-parity.md#shortcuts).
 
 | Id | Feature | Tier | Status | Evidence | Missing / notes |
 |---|---|---|---|---|---|
-| LR-EYE-RED | Red-eye correction | P1 | ✅ | `cmd:panel.redeye`, `cmd:redeye.add`, `cmd:redeye.delete`, `cmd:redeye.catchlight` | red eye and pet eye (with catchlight) |
+| LR-EYE-RED | Red-eye correction | P1 | 🚫 | | removed from the app by decision (editing only) |
 | LR-EYE-PET | Pet eye | P2 | ✅ | `cmd:redeye.add` (`pet`), `cmd:redeye.catchlight` | |
 
 ## K. Masking (MASK)
@@ -568,13 +568,13 @@ visible menu bar yet: the menu model is only exposed through the control channel
 | MENU-PHOTO-DELETE | Delete N photos… | P0 | ✅ | `cmd:photo.delete` | no confirmation; static label |
 | MENU-PHOTO-MOVETOCLOUD | Move/copy to cloud | OOS | 🚫 | | |
 | MENU-WINDOW-MINIMIZE | Minimize / zoom | P1 | ✅ | `apps/lightcraft/src/native_menu.rs` | the system's Minimize (⌘M) and Zoom items at the top of Window |
-| MENU-WINDOW-PANELS | Panel switches | P0 | ✅ | `cmd:panel.edit`, `cmd:panel.crop`, `cmd:panel.remove`, `cmd:panel.masking`, `cmd:panel.presets`, `cmd:panel.versions` | |
+| MENU-WINDOW-PANELS | Panel switches | P0 | ✅ | `cmd:panel.edit`, `cmd:panel.crop`, `cmd:panel.masking`, `cmd:panel.presets`, `cmd:panel.versions` | Edit is one page with the masks on top |
 | MENU-WINDOW-BRINGFRONT | Bring all to front | P2 | ✅ | `apps/lightcraft/src/native_menu.rs` | the system's item at the end of Window |
-| MENU-HELP-HELP | Help | P2 | ✅ | `cmd:app.help` | opens the documentation |
+| MENU-HELP-HELP | Help | P2 | 🚫 | | removed: the app links to nothing outside itself |
 | MENU-HELP-TUTORIALS | Tutorials | OOS | 🚫 | | |
 | MENU-HELP-WHATSNEW | What's new | P2 | ✅ | `cmd:app.whatsNew` | |
 | MENU-HELP-SHORTCUTS | Keyboard shortcuts | P1 | ✅ | `cmd:app.shortcuts` | |
-| MENU-HELP-FEEDBACK | Send feedback | P2 | ✅ | `cmd:app.feedback` | opens a new issue on the project's GitHub |
+| MENU-HELP-FEEDBACK | Send feedback | P2 | 🚫 | | removed: the app links to nothing outside itself |
 | MENU-HELP-LOGFOLDER | Open log folder | P2 | ✅ | `cmd:app.openLogFolder` | an extra (the reference app has no such item): Help ▸ Open Log Folder reveals `logs/lightcraft.log` in the system file manager (Finder, Explorer, or the folder on Linux); off on the web and in `--memory` sessions, which keep no log (issue #260) |
 | MENU-HELP-SYSINFO | System info | P2 | ✅ | `cmd:app.systemInfo`, `cmd:library.info` | Help ▸ System Info…: version, OS, CPU threads, GPU, memory budget, preview size, library, timings; Copy to Clipboard; one Close button, like About (#782); JSON for agents (`open: false`) |
 | MENU-CTX-GRID | Photo context menu | P0 | ✅ | `crates/ui-egui/src/panels/grid.rs` (`context_menu`) | rate, flag, label, add to / remove from album, rename, virtual copy, version, stack, copy / paste / paste selected, reset, merge, rotate, show in Finder, export / export with preset, set as album cover (in an album), delete (restore / delete permanently in Recently Deleted) |
@@ -613,7 +613,7 @@ From `06-shortcuts.md` part 1. Evidence is our binding; conflicts are explained 
 | KEY-PASTESELECTED | Paste selected — ⇧⌘V | P0 | ✅ | `cmd:dialog.pasteSettings` | |
 | KEY-PREFS | Settings — ⌘, | P0 | ✅ | `cmd:app.settings` | |
 | KEY-SEARCH | Search — ⌘F | P0 | ✅ | `cmd:view.focusSearch` | |
-| KEY-VISUALIZESPOTS | Visualize spots — A | P1 | ✅ | `cmd:view.visualizeSpots` | |
+| KEY-VISUALIZESPOTS | Visualize spots — A | P1 | 🚫 | | removed with the Remove tool |
 | KEY-CYCLEOVERLAY | Cycle overlay — O | P0 | ✅ | `cmd:view.maskOverlay`, `cmd:view.maskOverlayMode`, `cmd:view.cropOverlay` | O toggles the mask overlay; ⇧O cycles mask overlay modes while masking, crop overlays elsewhere |
 | KEY-PHOTOSPANEL | Photos panel — P | P0 | 🟡 | `cmd:view.leftPanel` | bound to ⌘⇧L; P = pick |
 | KEY-LINEAR | Linear gradient — L | P0 | ✅ | `cmd:tool.linear` | |
@@ -642,7 +642,7 @@ From `06-shortcuts.md` part 1. Evidence is our binding; conflicts are explained 
 | KEY-BRUSHSIZE | Brush size — `[` / `]` | P0 | ✅ | `cmd:brush.smaller`, `cmd:brush.larger` | Masking brush and Remove tool (and its selected spot) |
 | KEY-BRUSHFEATHER | Brush feather — ⇧`[` / ⇧`]` | P0 | ✅ | `cmd:brush.featherLess`, `cmd:brush.featherMore` | |
 | KEY-BRUSH | Brush — B | P0 | ✅ | `cmd:tool.brush` | |
-| KEY-HEAL | Remove / heal — H | P0 | ✅ | `cmd:panel.remove` | |
+| KEY-HEAL | Remove / heal — H | P0 | 🚫 | | removed by decision: the Remove tool is gone |
 | KEY-MERGE | HDR / panorama merges — ⌃H ⇧⌃H ⌃M ⇧⌃M | P2 | ✅ | `cmd:dialog.mergeHdr`, `cmd:dialog.mergePanorama`, `cmd:merge.hdrLast`, `cmd:merge.panoramaLast` | |
 | KEY-PICK | Pick — Z | P0 | 🟡 | `cmd:photo.pick` | bound to P; Z toggles zoom |
 | KEY-UNFLAG | Unflag — U | P0 | ✅ | `cmd:photo.unflag` | |
@@ -670,7 +670,7 @@ From `06-shortcuts.md` part 1. Evidence is our binding; conflicts are explained 
 | KEY-SLIDER-NUDGE | Nudge slider — ↑/↓ | P1 | ✅ | `crates/ui-egui/src/widgets.rs` (`nudged`), `cmd:develop.adjust` | ↑/↓ over any slider: ≈ 1/200 of its range (exposure 0.05, most sliders 1, temperature 50 K); ⇧ ×5; one undo step each |
 | KEY-SLIDER-TYPE | Type a slider value | P1 | ✅ | `crates/ui-egui/src/widgets.rs` (`typed_value`), `crates/ui-egui/src/text_field.rs`, `crates/ui-egui/src/widgets/tests_numeric_entry.rs` (`opening_release_honors_return_and_escape_immediately`), `crates/ui-egui/src/tests_keymap.rs` (`opening_numeric_release_keeps_keys_in_the_editor`) | click the value next to any slider's name and type one (`1.5`, `+0,25`, `-20`, `5600 K`): Return or clicking away applies it on the control's steps and range as one undo step, Esc keeps the old value; issue #322; Return/Escape take effect on the opening release, retaining the stored value on Escape; typing stays in the editor without triggering global shortcuts |
 | KEY-SHORTCUTS | Shortcut list — ⌘/ | P1 | ✅ | `cmd:app.shortcuts` | |
-| KEY-HELP | Help — F1 | P2 | ✅ | `cmd:app.help` | |
+| KEY-HELP | Help — F1 | P2 | 🚫 | | removed: the app links to nothing outside itself |
 | KEY-VIDEO-PLAY | Play/pause video — Space | P1 | ⬜ | | |
 | KEY-ESC | Leave tool / view — Esc | P0 | ✅ | `cmd:view.back`, `crates/ui-egui/src/icons.rs` (`navigation_arrowheads_have_both_halves`), `crates/ui-egui/src/tests_crop_tool.rs` | top-bar navigation arrowheads render both halves at 1× and 2× scale; in the crop tool Esc closes the tool first (the crop stays), the next Esc goes back to the grid; Esc that ends an edit in a text field does nothing else |
 | KEY-COMMIT | Commit tool — Return | P1 | ✅ | `cmd:tool.done` | Return closes Crop / Remove / Red Eye / Masking back to Edit (edits apply live, as in Lightroom) |

@@ -197,8 +197,8 @@ pub enum DarkTheme {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum LightTheme {
-    #[default]
     Silver,
+    #[default]
     Paper,
 }
 
@@ -293,7 +293,7 @@ impl Default for AppSettings {
             film_badges: true,
             grid_badges: GridBadges::Auto,
             keymap: Default::default(),
-            appearance_mode: AppearanceMode::Dark,
+            appearance_mode: AppearanceMode::Light,
             dark_theme: DarkTheme::Charcoal,
             light_theme: LightTheme::Silver,
             favorite_themes: Vec::new(),

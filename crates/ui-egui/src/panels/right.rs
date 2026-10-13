@@ -35,11 +35,15 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
         egui::ScrollArea::vertical().id_salt("right-scroll").auto_shrink([false, false]).show(ui, |ui| {
             ui.spacing_mut().item_spacing.y = 0.0;
             match app.ui.right {
-                RightPanel::Edit => super::edit::show(app, ui, id),
+                // one page: masks first, then the develop sections
+                RightPanel::Edit | RightPanel::Masking => {
+                    super::masking::show(app, ui, id);
+                    divider(ui);
+                    super::edit::show(app, ui, id);
+                }
                 RightPanel::Profiles => super::profiles::show(app, ui, id),
                 RightPanel::Crop => crop(app, ui, id),
                 RightPanel::Remove => remove(app, ui, id),
-                RightPanel::Masking => super::masking::show(app, ui, id),
                 RightPanel::RedEye => red_eye(app, ui, id),
                 RightPanel::Info => info(app, ui, id),
                 RightPanel::Keywords => keywords(app, ui, id),
