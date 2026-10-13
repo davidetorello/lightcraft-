@@ -228,16 +228,7 @@ const LAYOUT: &[(&str, &[&str])] = &[
             "@Tools",
         ],
     ),
-    (
-        "Help",
-        &[
-            "app.shortcuts",
-            "app.systemInfo",
-            "app.openLogFolder",
-            "---",
-            "app.about",
-        ],
-    ),
+    ("Help", &["app.shortcuts", "app.systemInfo", "app.openLogFolder", "---", "app.about"]),
 ];
 
 /// Items that always end their menu in their own separator group, after the entries appended

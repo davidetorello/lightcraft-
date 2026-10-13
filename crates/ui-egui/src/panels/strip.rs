@@ -28,11 +28,11 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
                 if icon_button(ui, "presets", Icon::Presets, sz, app.ui.presets, has_photo, "Presets (Shift+P)").clicked() {
                     let _ = app.run("panel.presets", json!({}));
                 }
-                for (id, icon, panel, tip) in [
-                    ("edit", Icon::Sliders, RightPanel::Edit, "Edit (E)"),
-                    ("crop", Icon::Crop, RightPanel::Crop, "Crop & Rotate (C)"),
-                ] {
-                    let on = app.ui.right == panel || (panel == RightPanel::Edit && matches!(app.ui.right, RightPanel::Profiles | RightPanel::Masking));
+                for (id, icon, panel, tip) in
+                    [("edit", Icon::Sliders, RightPanel::Edit, "Edit (E)"), ("crop", Icon::Crop, RightPanel::Crop, "Crop & Rotate (C)")]
+                {
+                    let on =
+                        app.ui.right == panel || (panel == RightPanel::Edit && matches!(app.ui.right, RightPanel::Profiles | RightPanel::Masking));
                     if icon_button(ui, id, icon, sz, on, has_photo, tip).clicked() {
                         let _ = app.run(&format!("panel.{id}"), json!({}));
                     }
