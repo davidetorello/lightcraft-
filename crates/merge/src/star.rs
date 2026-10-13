@@ -15,11 +15,11 @@ use serde::{Deserialize, Serialize};
 
 use lightcraft_raster::Rgb32f;
 
-use crate::{align, features, MergeError, Progress, Result, check};
+use crate::{MergeError, Progress, Result, align, check, features};
 
 // ── Options ──────────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct StarStackOptions {
     /// Sigma for iterative sigma-clipping; 2.5 is a good default.
@@ -36,7 +36,7 @@ impl Default for StarStackOptions {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct StarTrailsOptions {
     /// Whether to auto-align frames before accumulating.
@@ -147,11 +147,7 @@ pub fn merge_star_stack(imgs: Vec<Rgb32f>, opts: &StarStackOptions, progress: &P
                 bufs[1].push(c[1]);
                 bufs[2].push(c[2]);
             }
-            [
-                clipped_mean(&bufs[0], sigma, iters),
-                clipped_mean(&bufs[1], sigma, iters),
-                clipped_mean(&bufs[2], sigma, iters),
-            ]
+            [clipped_mean(&bufs[0], sigma, iters), clipped_mean(&bufs[1], sigma, iters), clipped_mean(&bufs[2], sigma, iters)]
         })
         .collect();
 

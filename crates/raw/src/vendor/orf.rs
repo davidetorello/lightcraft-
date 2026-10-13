@@ -28,8 +28,9 @@
 //!   (last), the bit order and the pixel order were fixed by measurement on the CC0 files 2878 (E-300), 3540 (E-500)
 //!   and 3624 (E-330), as was the sensor-origin RGGB anchoring (the maker-note crop offsets are odd). The E-M5 Mark II
 //!   and PEN-F files were only checked for smoothness, not for CFA anchoring or black level.
-//! - Olympus's compressed ORF (most interchangeable-lens bodies since ~2008) is not decoded: no permissively
-//!   licensed description exists. It reports [`RawError::Unsupported`]; the embedded preview still works.
+//! - Olympus's compressed ORF (most interchangeable-lens bodies since ~2008) is decoded by
+//!   [`orf_compress::decode_strip`], derived from CC0 samples and patents US7333035B2 / US7715639B2
+//!   (MED prediction + Golomb-Rice coding with adaptive k). See `orf_compress.rs`.
 //! - The colour-filter layout is the file's Exif `CFAPattern`: GRBG on the E-1 and E-400, RGGB on the XZ-2, where
 //!   the colours of the decoded mosaic follow the embedded JPEG best with exactly that layout
 //!   (`corpus_orf_cfa_patterns`). The samples' active areas start at even offsets, so they can't tell whether the
@@ -45,6 +46,9 @@ use lightcraft_tiff::image::chunk_bytes;
 use lightcraft_tiff::makernote::MakerNote;
 use lightcraft_tiff::{Ifd, Tiff, Value, makernote, tags as t};
 use rayon::prelude::*;
+
+#[path = "orf_compress.rs"]
+mod orf_compress;
 
 pub(crate) const CAMERA_SETTINGS: u16 = 0x2020;
 const IMAGE_PROCESSING: u16 = 0x2040;
@@ -197,7 +201,15 @@ pub(crate) fn decode(bytes: &[u8], mode: Mode) -> Result<RawImage> {
     let stated = cfa_from_exif(&tiff);
     let mut two_field = false;
     let (mut data, bits) = if info.compression != 1 {
-        return Err(RawError::Unsupported(format!("ORF compression {}", info.compression)));
+        // Olympus lossless compression (tag 0x3003 / 0x3007). Single strip.
+        if chunks.len() != 1 {
+            return Err(RawError::Corrupt("ORF compressed: expected a single strip".into()));
+        }
+        let src = chunk_bytes(bytes, &chunks[0])
+            .ok_or_else(|| RawError::Corrupt("ORF compressed: strip outside file".into()))?;
+        let mut d = vec![0u16; n];
+        orf_compress::decode_strip(src, w, h, &mut d)?;
+        (RawData::U16(d), 12)
     } else if total >= (n as u64) * 2 {
         let d = read_image(bytes, &info, tiff.order, Packing::Word16)?;
         (d, 16)
@@ -249,7 +261,7 @@ pub(crate) fn decode(bytes: &[u8], mode: Mode) -> Result<RawImage> {
         };
         (RawData::U16(d), 12)
     } else {
-        return Err(RawError::Unsupported("Olympus compressed ORF".into()));
+        return Err(RawError::Unsupported("ORF: unrecognised strip layout".into()));
     };
     let RawData::U16(ref mut samples) = data else { return Err(RawError::Unsupported("float ORF".into())) };
     let bits = if bits == 16 && samples.iter().step_by(7).filter(|v| *v & 15 != 0).count() * 700 <= n {

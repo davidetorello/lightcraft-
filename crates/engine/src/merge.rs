@@ -213,10 +213,11 @@ impl MergeJob {
             }
             MergeKind::StarStack { star } => {
                 let frames = self.load(false, progress, (0.0, 0.35))?;
-                let color = frames.first().map(|f| f.color.clone()).unwrap_or_default();
-                let orientation = frames.first().map(|f| f.orientation).unwrap_or(lightcraft_geom::Orientation::Normal);
-                let metadata = frames.first().map(|f| f.metadata.clone()).unwrap_or_default();
-                let baseline = frames.first().map(|f| f.baseline_exposure).unwrap_or(0.0);
+                let first = frames.first().ok_or_else(|| "star stack: no frames loaded".to_string())?;
+                let color = first.color.clone();
+                let orientation = first.orientation;
+                let metadata = first.metadata.clone();
+                let baseline = first.baseline_exposure;
                 let imgs: Vec<_> = frames.into_iter().map(|f| f.image).collect();
                 let p = |f: f32, s: &str| progress(0.35 + 0.55 * f, s);
                 let r = lightcraft_merge::merge_star_stack(imgs, star, &p).map_err(|e| e.to_string())?;
@@ -225,10 +226,11 @@ impl MergeJob {
             }
             MergeKind::StarTrails { star } => {
                 let frames = self.load(false, progress, (0.0, 0.35))?;
-                let color = frames.first().map(|f| f.color.clone()).unwrap_or_default();
-                let orientation = frames.first().map(|f| f.orientation).unwrap_or(lightcraft_geom::Orientation::Normal);
-                let metadata = frames.first().map(|f| f.metadata.clone()).unwrap_or_default();
-                let baseline = frames.first().map(|f| f.baseline_exposure).unwrap_or(0.0);
+                let first = frames.first().ok_or_else(|| "star trails: no frames loaded".to_string())?;
+                let color = first.color.clone();
+                let orientation = first.orientation;
+                let metadata = first.metadata.clone();
+                let baseline = first.baseline_exposure;
                 let imgs: Vec<_> = frames.into_iter().map(|f| f.image).collect();
                 let p = |f: f32, s: &str| progress(0.35 + 0.55 * f, s);
                 let r = lightcraft_merge::merge_star_trails(imgs, star, &p).map_err(|e| e.to_string())?;
@@ -365,11 +367,13 @@ pub fn parse(id: &str, p: &Value) -> Result<(MergeKind, MergeFinish)> {
         "merge.hdr" => MergeKind::Hdr { hdr },
         "merge.panorama" => MergeKind::Panorama { pano },
         "merge.starStack" => {
-            let star: StarStackOptions = serde_json::from_value(p.get("star").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("star: {e}")))?;
+            let star: StarStackOptions =
+                serde_json::from_value(p.get("star").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("star: {e}")))?;
             MergeKind::StarStack { star }
         }
         "merge.starTrails" => {
-            let star: StarTrailsOptions = serde_json::from_value(p.get("star").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("star: {e}")))?;
+            let star: StarTrailsOptions =
+                serde_json::from_value(p.get("star").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("star: {e}")))?;
             MergeKind::StarTrails { star }
         }
         _ => MergeKind::HdrPanorama { hdr, pano, bracket: p.get("bracket").and_then(Value::as_u64).unwrap_or(0) as usize },

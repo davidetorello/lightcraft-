@@ -2,7 +2,7 @@
 
 **Stage: alpha** · next: beta, ~14 points and ~340–600 h away
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-11 · **Change:** minor (EOS R5 Mark II CR3 verified; RAW decoding 77%) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** major (compressed ORF decoder: 78 Olympus/OM bodies promoted from preview-only to 🟡) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 One-page summary of how close LightCraft is to Adobe Lightroom. Agents: read this, then pick work
 from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are in
@@ -107,12 +107,17 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 3. Render-fidelity suite against Lightroom, then tuning (30–60 h)
 4. Full-resolution zoom (8–15 h)
 5. AI masks: Subject / Sky / People (40–70 h + model decision)
-6. Compressed ORF and HE NEF (28–55 h)
+6. HE NEF (20–40 h) · Compressed ORF: decoder landed 2026-10-13, real-file verification pending (1–2 h)
 7. Lens profile database of our own (40–80 h)
 8. Tests in CI on macOS, Windows and Linux (6–12 h)
 9. Per-model raw verification (20–35 h)
 
 ## Progress log
+
+- 2026-10-13: Olympus / OM compressed ORF decoder landed (`orf_compress::decode_strip`): Golomb-Rice
+  entropy coding with adaptive k + MED predictor, derived from CC0 samples and patents US7333035B2 /
+  US7715639B2. 78 Olympus/OM bodies promoted from preview-only to 🟡 (real-file verification pending;
+  +2.6 points when verified). Zero GPL code — clean-room.
 
 - 2026-10-11: Canon EOS R5 Mark II C-RAW decodes from sensor data (57% of its files opened as a
   preview): the CRX QP map's first-symbol literal and limited-length escape; four CC0 R5 Mark II files

@@ -167,8 +167,8 @@
   "{verb} {n} Photo{}": "{verb}: {n} Foto{}",
   "{weekday}, {day}": "{weekday}, {day}.",
   "{weekday}, {day} {month} {year}": "{weekday}, {day}.{month:02}.{year}",
-  "{what} merge added": "Star-Stack-Ergebnis hinzugefügt",
-  "{what} merge failed: {e}": "Star-Stack-Fehler: {e}",
+  "{what} merge added": "{what} hinzugefügt",
+  "{what} merge failed: {e}": "{what} fehlgeschlagen: {e}",
   "{year}": "{year}",
   "{{date:…}} directives: {}": "{{date:…}}-Formatangaben: {}",
   "{} and higher": "{} und höher",
@@ -237,15 +237,12 @@
   "+{n} more": "+{n} weitere",
   "1 task is still running: {names}. Quitting stops it.": "1 Aufgabe läuft noch: {names}. Beenden bricht sie ab.",
   "{n} tasks are still running: {names}. Quitting stops them.": "{n} Aufgaben laufen noch: {names}. Beenden bricht sie ab.",
-  "{what} merge cancelled": "Star-Stack-Zusammenführung abgebrochen",
+  "{what} merge cancelled": "{what} abgebrochen",
   "{n} Local photo{} skipped: albums hold library photos (Add to My Photos first)": "Übersprungen: {n} lokale Fotos{0:.0} – Alben enthalten Bibliotheksfotos (zuerst zu „Meine Fotos“ hinzufügen)",
   "New Folder in “{name}”": "Neuer Ordner in „{name}“",
   "Moved {} photo(s)": "{} Foto(s) verschoben",
   "not added to Apple Photos: {e}": "nicht zu Apple Fotos hinzugefügt: {e}",
   "{n} added to Apple Photos album “{album}”": "{n} zum Apple-Fotos-Album „{album}“ hinzugefügt",
   "{n} added to Apple Photos": "{n} zu Apple Fotos hinzugefügt",
-  "{n} photos opened for editing; each is stacked with its original": "{n} Fotos zur Bearbeitung geöffnet; jedes ist mit seinem Original gestapelt",
-  "Star Trails merge added": "Sternspuren-Ergebnis hinzugefügt",
-  "Star Trails merge cancelled": "Sternspuren-Zusammenführung abgebrochen",
-  "Star Trails merge failed: {e}": "Sternspuren-Fehler: {e}"
+  "{n} photos opened for editing; each is stacked with its original": "{n} Fotos zur Bearbeitung geöffnet; jedes ist mit seinem Original gestapelt"
 }
