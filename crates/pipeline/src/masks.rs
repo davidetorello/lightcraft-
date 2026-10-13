@@ -47,6 +47,11 @@ impl Mattes {
         }
     }
 
+    /// Whether a sky matte is present (even an empty one: no sky).
+    pub fn has_sky(&self) -> bool {
+        self.mattes.iter().any(|(k, _)| *k == MatteKind::Sky)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.mattes.is_empty()
     }
@@ -229,19 +234,8 @@ pub fn shape_alpha(shape: &MaskShape, frame: &Frame, w: usize, h: usize, img: &R
             }
         }
         MaskShape::Sky => {
-            // Classical sky heuristic until the segmenter lands (M12): bright, smooth, blue-ish or
-            // unsaturated, and connected to the top of the frame.
-            let m = frame.out_to_norm(w, h);
-            for (i, v) in out.data.iter_mut().enumerate() {
-                let (x, y) = (i % w, i / w);
-                let n = m.apply(Point::new(x as f64 + 0.5, y as f64 + 0.5));
-                let c = img.data[i].map(|v| v * gain);
-                let l = log_l.data[i] + ev;
-                let blue = (c[2] - c[0]).max(0.0) / (c[2] + 1e-4);
-                let top = 1.0 - smooth(0.25, 0.7, n.y as f32);
-                *v = top * smooth(-3.5, -1.0, l) * (0.4 + 0.6 * smooth(0.0, 0.3, blue).max(smooth(0.0, 1.5, l)));
-            }
-            smooth_plane(&mut out, 0.01 * frame_px(frame, w));
+            // Lumen-style sky segmenter (gradient/colour seed, region growing, guided-filter edges)
+            out.data = crate::sky::alpha(img, gain, crate::sky::DEFAULT_THRESHOLD);
         }
         MaskShape::Object { seg, detail, edge, .. } | MaskShape::Prompt { seg, detail, edge, .. } if seg.is_some() || !detail.is_empty() => {
             // Edge: below 0 a steeper transition (up to 8× the logits), above 0 feathered (up to
@@ -963,8 +957,7 @@ mod tests {
     }
 
     /// The Sky mask follows the source's sky matte where it has one (here: the bottom-left of a
-    /// uniformly bright blue photo, where the heuristic sees no sky, and not its top right, where
-    /// it does), through user orientation, at any output size; without one it keeps the heuristic.
+    /// uniformly bright blue photo, where the detector sees sky everywhere, and not its top right), through user orientation, at any output size; without one it uses the detector.
     #[test]
     fn sky_uses_the_sources_matte() {
         let (w, h) = (200, 100);
@@ -975,7 +968,8 @@ mod tests {
         let f = frame(w, h);
         let heuristic = shape_alpha(&MaskShape::Sky, &f, w, h, &img, &l, 0.0, None);
         let matte = shape_alpha(&MaskShape::Sky, &f, w, h, &img, &l, 0.0, Some(&mattes));
-        assert!(heuristic.get(150, 5) > 0.9 && heuristic.get(25, 90) < 0.1, "{} {}", heuristic.get(150, 5), heuristic.get(25, 90));
+        // (without a matte the detector finds the sky itself: a uniformly bright blue frame is all sky)
+        assert!(heuristic.get(150, 5) > 0.9 && heuristic.get(25, 90) > 0.9, "{} {}", heuristic.get(150, 5), heuristic.get(25, 90));
         assert!(matte.get(150, 5) < 0.01 && matte.get(25, 90) > 0.99, "{} {}", matte.get(150, 5), matte.get(25, 90));
         // mattes of other kinds leave the heuristic alone
         let mut hair = Mattes::default();

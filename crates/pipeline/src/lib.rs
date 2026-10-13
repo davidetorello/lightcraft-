@@ -38,6 +38,7 @@ pub mod optics;
 pub mod output;
 pub mod profiles;
 pub mod redeye;
+pub mod sky;
 pub mod spots;
 pub mod tone;
 pub mod transform;
@@ -422,6 +423,16 @@ pub fn plan<'a>(src: &Rgb32f, info: &SourceInfo, s: &'a DevelopSettings, req: &R
         }
         None => (frame, full_w, full_h),
     };
+    // the sky is found once on the whole frame (a window can't see it), as a matte the mask reads
+    let mattes = if s.masks.iter().any(|m| m.components.iter().any(|c| matches!(c.shape, lightcraft_develop::MaskShape::Sky)))
+        && !info.mattes.as_ref().is_some_and(|m| m.has_sky())
+    {
+        let mut m = info.mattes.as_deref().cloned().unwrap_or_default();
+        m.push(masks::MatteKind::Sky, sky::source_matte(src, info, s));
+        Some(Arc::new(m))
+    } else {
+        info.mattes.clone()
+    };
     let src_long = src.width.max(src.height);
     let geo = hash_of((format!("{frame:?}"), w, h));
     let (wb_t, wb_tint) = local::effective_wb(info, s);
@@ -439,7 +450,7 @@ pub fn plan<'a>(src: &Rgb32f, info: &SourceInfo, s: &'a DevelopSettings, req: &R
         src_long,
     ));
     let lin_key = hash_of((pre_nr_key, [d.nr_luminance, d.nr_detail, d.nr_color, d.nr_color_detail, d.nr_color_smoothness].map(f64::to_bits)));
-    Plan { settings, frame, w, h, px_per_long, src_long, geo, lin_key, pre_nr_key, eyes, fixed_air, keep, mattes: info.mattes.clone() }
+    Plan { settings, frame, w, h, px_per_long, src_long, geo, lin_key, pre_nr_key, eyes, fixed_air, keep, mattes }
 }
 
 /// Whether the scene-linear stage needs work only the CPU does (defringe, spot removal).
