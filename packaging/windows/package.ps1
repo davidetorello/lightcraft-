@@ -157,6 +157,14 @@ if ($env:CRAFT_FONTS_DIR) {
     Copy-Item $_.FullName (Join-Path $Portable "OFL-$($_.Directory.Name).txt")
   }
 }
+# A distributor who accepts the lensfun database's CC-BY-SA 3.0 terms can ship it: set LIGHTCRAFT_LENSFUN_SRC to a
+# folder of lensfun XML files (with their licence text) and the portable zip carries them in `lensfun\`, where the
+# app looks first (docs/lens-profiles.md). This repository ships none.
+if ($env:LIGHTCRAFT_LENSFUN_SRC -and (Test-Path $env:LIGHTCRAFT_LENSFUN_SRC)) {
+  $Lens = Join-Path $Portable 'lensfun'
+  New-Item -ItemType Directory -Force -Path $Lens | Out-Null
+  Copy-Item (Join-Path $env:LIGHTCRAFT_LENSFUN_SRC '*') $Lens -Recurse
+}
 $Zip = Join-Path $Dist "lightcraft-$Version-windows-$Arch-portable.zip"
 Remove-Item -Force $Zip -ErrorAction SilentlyContinue
 Compress-Archive -Path $Portable -DestinationPath $Zip
