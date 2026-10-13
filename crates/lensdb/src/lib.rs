@@ -30,10 +30,19 @@ pub use model::{Distortion, Tca, Vignetting};
 const MAX_FILE_BYTES: u64 = 16 << 20;
 /// Most files read from one directory.
 const MAX_FILES: usize = 2000;
-/// Largest radial error (half-diagonal units) accepted when converting a distortion to the DNG polynomial.
-pub const MAX_WARP_ERROR: f64 = 0.001;
+/// Largest radial error (half-diagonal units) accepted when converting a distortion to the DNG polynomial: 0.2 % of
+/// the half diagonal, about 7 px on a 6000 px frame and only at the very corner. Strong wide-angle zooms (a
+/// 24 mm end with 6 % corner distortion) need slightly more than 0.1 %; rejecting them left the frame uncorrected.
+pub const MAX_WARP_ERROR: f64 = 0.002;
 /// Largest relative error accepted when converting vignetting to the DNG polynomial.
 pub const MAX_VIGNETTE_ERROR: f64 = 0.01;
+/// Fallback for a vignetting profile the polynomial cannot follow within [`MAX_VIGNETTE_ERROR`]: a lens built for
+/// in-camera digital correction (a Canon RF zoom at its wide end) leaves almost no light in the corners, and
+/// lensfun's polynomial even runs through zero there, so the exact gain is unbounded. The correction then lifts the
+/// corners towards a soft cap (the first of these maximum gains that the polynomial follows within
+/// [`VIGNETTE_FALLBACK_ERROR`], 3 % being 0.04 EV) instead of being dropped and leaving the frame uncorrected.
+const VIGNETTE_GAIN_CAPS: [f64; 4] = [8.0, 6.0, 4.0, 3.0];
+const VIGNETTE_FALLBACK_ERROR: f64 = 0.03;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Error {
@@ -444,9 +453,19 @@ impl Profile {
         }
         if !self.vignetting.is_empty() {
             let att = |r: f64| self.vignetting_attenuation(f, shot.aperture, shot.distance, r * to_vig).unwrap_or(1.0);
-            if let Some((k, err)) = model::fit_gain5(|r| 1.0 / att(r).max(0.05))
-                && err <= MAX_VIGNETTE_ERROR
-            {
+            let exact = |r: f64| 1.0 / att(r).max(0.05);
+            let fit = model::fit_gain5(exact).filter(|(_, err)| *err <= MAX_VIGNETTE_ERROR).or_else(|| {
+                VIGNETTE_GAIN_CAPS.iter().find_map(|cap| {
+                    // 1 / att(r) up to the cap, rounded off (p = 4) so that a polynomial can follow it
+                    let capped = |r: f64| {
+                        let x = att(r);
+                        let x = if x > 1e-3 { 1.0 / x } else { 1e3 };
+                        (x.powi(-4) + cap.powi(-4)).powf(-0.25)
+                    };
+                    model::fit_gain5(capped).filter(|(_, err)| *err <= VIGNETTE_FALLBACK_ERROR)
+                })
+            });
+            if let Some((k, _)) = fit {
                 lens.vignette = Some(EmbeddedVignette { k, center, radius });
             }
         }

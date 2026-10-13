@@ -243,3 +243,46 @@ fn tokens_split_names_like_exif_writes_them() {
     assert_eq!(tokens("FE 24-105mm F4.0 G OSS"), ["fe", "24", "105", "mm", "f", "4", "g", "oss"]);
     assert_eq!(tokens("f/2.8"), ["f", "2.8"]);
 }
+
+/// A wide-angle zoom built for in-camera digital correction: strong distortion and a vignetting polynomial that
+/// reaches zero light at the corner (made-up coefficients with that behaviour, not lensfun data).
+const WIDE_ZOOM: &str = r#"<lensdatabase version="2">
+  <lens>
+    <maker>Testcam</maker>
+    <model>Testcam 24-240mm f/4-6.3 Digital</model>
+    <mount>Test Mount</mount>
+    <cropfactor>1</cropfactor>
+    <calibration>
+      <distortion model="ptlens" focal="24" a="0.05" b="-0.17" c="0.1" />
+      <distortion model="ptlens" focal="240" a="-0.005" b="0.04" c="-0.034" />
+      <vignetting model="pa" focal="24" aperture="4" distance="1000" k1="-0.27" k2="-0.56" k3="-0.2" />
+      <vignetting model="pa" focal="240" aperture="6.3" distance="1000" k1="-0.45" k2="-0.79" k3="0.6" />
+    </calibration>
+  </lens>
+</lensdatabase>"#;
+
+#[test]
+fn a_wide_end_that_loses_all_corner_light_is_still_corrected_with_a_bounded_gain() {
+    let db = LensDb::parse(WIDE_ZOOM).unwrap();
+    let lens = db.find_lens(None, "Testcam 24-240mm F4-6.3 Digital", None).unwrap();
+    let shot = Shot { focal: 24.0, aperture: Some(4.0), distance: None, crop_factor: Some(1.0), width: 6000.0, height: 4000.0 };
+    let c = lens.correction(&shot).expect("a wide-end profile must not be dropped");
+    assert!(c.warp.is_some(), "the 6 % corner distortion is corrected");
+    let v = c.vignette.expect("the vignetting is corrected");
+    let gain = |r: f64| {
+        let r2 = r * r;
+        1.0 + r2 * (v.k[0] + r2 * (v.k[1] + r2 * (v.k[2] + r2 * (v.k[3] + r2 * v.k[4]))))
+    };
+    let mut last = 1.0;
+    for i in 0..=20 {
+        let g = gain(f64::from(i) / 20.0);
+        assert!(g.is_finite() && g >= last - 0.02, "gain rises towards the corner: {g} after {last}");
+        last = g;
+    }
+    assert!(gain(1.0) > 2.0, "the corner is lifted: {}", gain(1.0));
+    assert!(gain(1.0) < 8.5, "the gain is bounded: {}", gain(1.0));
+    // the long end, where the polynomial follows the model exactly, is unchanged in kind
+    let long = Shot { focal: 240.0, aperture: Some(6.3), ..shot };
+    let c = lens.correction(&long).unwrap();
+    assert!(c.warp.is_some() && c.vignette.is_some());
+}

@@ -1,6 +1,6 @@
 # Gaps: where LightCraft falls short of Lightroom
 
-> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-13 · **Change:** major (compressed ORF decoder landed: gap 6 becomes real-file verification task; +2.6 points once verified) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-13 · **Change:** minor (lens profiles no longer dropped at the wide end of strong digital-correction zooms; EOS R6 Mark II CR3 decodes real files) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 Every known shortfall, one entry each, ranked by user impact (how many Lightroom users hit it, and
 how hard it blocks them), then by effort. **Agents pick work from the top** (the first entry nobody is
@@ -72,6 +72,7 @@ Beta-blocking gaps (B) total **~230–430 h**; with the stability and platform w
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-13 | minor | Lens database: a profile whose distortion or vignetting the DNG polynomials could not follow within the tight tolerance (a Canon RF 24-240 at 24 mm: 6 % corner distortion, corner light reaching zero) was dropped whole; distortion tolerance is now 0.2 % and vignetting falls back to a soft-capped gain (up to 3 % polynomial error). Two real EOS R6 Mark II CR3 files (RF24-240) decode from sensor data (6188×4120, 14-bit, sane levels and white balance) and render correctly; not yet bit-exact against a reference, so CR3 counts are unchanged |
 | 2026-10-13 | major | Gap 6: compressed ORF decoder landed (`orf_compress::decode_strip`, Golomb-Rice + MED); 78 Olympus/OM bodies 🟡; gap 6 shrinks to real-file verification only (1–2 h); +2.6 points pending verify |
 | 2026-10-11 | minor | Reviewed against main after 0.6.0: CR3 entry names the CRX variants `crx.rs` still refuses and the R7 / R6 Mark II C-RAW state (decoding, not verified, so the measured numbers don't move); CI and Windows / Linux entries note the riscv64 release build (#844); R7 fix added to Closed recently. Panel docking (UI.9, #869) closes no listed gap |
 | 2026-10-11 | minor | Camera colour entry: raws with a black-and-white camera JPEG take its tone curve (#577); gap not closed |
