@@ -2,7 +2,8 @@
 //!
 //! When a raw carries no lens correction of its own (DNG opcodes, or a camera correction a raw reader converts,
 //! [`crate::files::embedded_lens`]), the lens named in its EXIF is looked up in a lensfun-format database: the
-//! directory in `LIGHTCRAFT_LENSFUN_DIR` (e.g. lensfun's `data/db`, CC-BY-SA, which is never bundled with the app).
+//! directory in `LIGHTCRAFT_LENSFUN_DIR` (e.g. lensfun's `data/db`, CC-BY-SA, which is never bundled with the app), else
+//! a `lensfun` folder next to the executable (where a distributor who accepts that licence can place the files).
 //! The profile is converted to the same [`lightcraft_develop::EmbeddedLens`] form, so "Enable Profile Corrections", its
 //! amount sliders, the GPU path and DNG export treat both alike. Without the variable nothing changes.
 use std::path::PathBuf;
@@ -14,11 +15,21 @@ use lightcraft_lensdb::{LensDb, Shot};
 /// The environment variable naming the lens database directory.
 pub const ENV: &str = "LIGHTCRAFT_LENSFUN_DIR";
 
+/// Where the database is looked for without the variable: a `lensfun` folder next to the executable, or the
+/// installed-package layout `../share/lightcraft/lensfun`.
+pub fn default_dirs(exe: Option<&std::path::Path>) -> Vec<PathBuf> {
+    let Some(dir) = exe.and_then(|e| e.parent()) else { return Vec::new() };
+    vec![dir.join("lensfun"), dir.join("..").join("share").join("lightcraft").join("lensfun")]
+}
+
 /// The configured database, read once per process; `None` when none is configured or it holds no lenses.
 pub fn database() -> Option<&'static LensDb> {
     static DB: OnceLock<Option<LensDb>> = OnceLock::new();
     DB.get_or_init(|| {
-        let dir = PathBuf::from(std::env::var_os(ENV)?);
+        let dir = match std::env::var_os(ENV) {
+            Some(d) => PathBuf::from(d),
+            None => default_dirs(std::env::current_exe().ok().as_deref()).into_iter().find(|d| d.is_dir())?,
+        };
         match LensDb::load_dir(&dir) {
             Ok((db, errors)) => {
                 for (file, e) in errors {
@@ -82,6 +93,15 @@ mod tests {
             f_number: Some(3.5),
             ..Default::default()
         }
+    }
+
+    #[test]
+    fn default_directories_sit_next_to_the_executable() {
+        let dirs = default_dirs(Some(std::path::Path::new("/opt/app/lightcraft")));
+        assert_eq!(dirs[0], PathBuf::from("/opt/app/lensfun"));
+        assert!(dirs[1].ends_with("share/lightcraft/lensfun"));
+        assert!(default_dirs(None).is_empty());
+        assert!(default_dirs(Some(std::path::Path::new("/"))).is_empty());
     }
 
     #[test]
