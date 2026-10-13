@@ -1,4 +1,5 @@
-//! Photo Merge commands: `merge.hdr`, `merge.panorama`, `merge.hdrPanorama`.
+//! Photo Merge commands: `merge.hdr`, `merge.panorama`, `merge.hdrPanorama`, `merge.fusion`, `merge.starStack`,
+//! `merge.starTrails`.
 //!
 //! Run synchronously here (CLI, MCP, control channel); the desktop UI plans the same job with
 //! [`Session::plan_merge`] and runs it on a worker thread. `preview: true` merges ≤ 1024 px frames
@@ -68,6 +69,33 @@ pub fn specs() -> Vec<CommandSpec> {
             "{ids?, bracket=0 (auto from EXIF), align, deghost, projection, boundaryWarp, autoCrop, fillEdges, autoSettings, stack, preview, previewPath?}",
             can_merge,
             |s, p| run(s, "merge.hdrPanorama", p)
+        ),
+        cmd!(
+            "merge.fusion",
+            "Exposure Fusion",
+            [],
+            None,
+            "{ids?, fusion?: {contrast=1, saturation=1, exposure=1, sigma=0.2, autoAlign=true}, autoSettings=true, stack=false, preview=false, previewPath?}",
+            can_merge,
+            |s, p| run(s, "merge.fusion", p)
+        ),
+        cmd!(
+            "merge.starStack",
+            "Star Stack",
+            [],
+            None,
+            "{ids?, star?: {sigma=2.5, iterations=3, autoAlign=true}, autoSettings=true, stack=false, preview=false, previewPath?}",
+            can_merge,
+            |s, p| run(s, "merge.starStack", p)
+        ),
+        cmd!(
+            "merge.starTrails",
+            "Star Trails",
+            [],
+            None,
+            "{ids?, star?: {autoAlign=true}, autoSettings=true, stack=false, preview=false, previewPath?}",
+            can_merge,
+            |s, p| run(s, "merge.starTrails", p)
         ),
     ]
 }

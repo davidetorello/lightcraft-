@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use lightcraft_catalog::{PhotoId, Source};
 use lightcraft_develop::DevelopSettings;
-use lightcraft_merge::{Deghost, Frame, HdrOptions, PanoOptions, Projection, StarStackOptions, StarTrailsOptions};
+use lightcraft_merge::{Deghost, Frame, FusionOptions, HdrOptions, PanoOptions, Projection, StarStackOptions, StarTrailsOptions};
 use lightcraft_pipeline::{Quality, RenderRequest, SourceInfo};
 use lightcraft_raster::{Rgb32f, Rgba8};
 use serde::{Deserialize, Serialize};
@@ -38,6 +38,10 @@ pub enum MergeKind {
         pano: PanoOptions,
         bracket: usize,
     },
+    /// Exposure fusion (Mertens et al.): a bracket blended into one display-ready image, without a radiance map.
+    Fusion {
+        fusion: FusionOptions,
+    },
     /// Sigma-clipped stacking for astrophotography.
     StarStack {
         star: StarStackOptions,
@@ -54,6 +58,7 @@ impl MergeKind {
             MergeKind::Hdr { .. } => "HDR",
             MergeKind::Panorama { .. } => "Pano",
             MergeKind::HdrPanorama { .. } => "HDR-Pano",
+            MergeKind::Fusion { .. } => "Fusion",
             MergeKind::StarStack { .. } => "StarStack",
             MergeKind::StarTrails { .. } => "StarTrails",
         }
@@ -211,6 +216,30 @@ impl MergeJob {
                     None,
                 )
             }
+            MergeKind::Fusion { fusion } => {
+                let frames = self.load(false, progress, (0.0, 0.35))?;
+                let first = frames.first().ok_or_else(|| "exposure fusion: no frames loaded".to_string())?;
+                let color = first.color.clone();
+                let orientation = first.orientation;
+                let metadata = first.metadata.clone();
+                let baseline = first.baseline_exposure;
+                // the fusion weighs display-referred values: encode every linear frame, fuse, decode the result
+                let imgs: Vec<_> = frames
+                    .into_iter()
+                    .map(|f| {
+                        let mut img = f.image;
+                        img.data
+                            .iter_mut()
+                            .for_each(|p| p.iter_mut().for_each(|v| *v = lightcraft_color::transfer::linear_to_srgb(v.clamp(0.0, 1.0))));
+                        img
+                    })
+                    .collect();
+                let p = |f: f32, s: &str| progress(0.35 + 0.55 * f, s);
+                let mut r = lightcraft_merge::merge_exposure_fusion(imgs, fusion, &p).map_err(|e| e.to_string())?;
+                r.image.data.iter_mut().for_each(|p| p.iter_mut().for_each(|v| *v = lightcraft_color::transfer::srgb_to_linear(*v)));
+                let info = serde_json::json!({ "framesUsed": r.frames_used });
+                (r.image, color, orientation, metadata, baseline, lightcraft_merge::DngSamples::U16, None, info, None)
+            }
             MergeKind::StarStack { star } => {
                 let frames = self.load(false, progress, (0.0, 0.35))?;
                 let first = frames.first().ok_or_else(|| "star stack: no frames loaded".to_string())?;
@@ -366,6 +395,11 @@ pub fn parse(id: &str, p: &Value) -> Result<(MergeKind, MergeFinish)> {
     let kind = match id {
         "merge.hdr" => MergeKind::Hdr { hdr },
         "merge.panorama" => MergeKind::Panorama { pano },
+        "merge.fusion" => {
+            let fusion: FusionOptions =
+                serde_json::from_value(p.get("fusion").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("fusion: {e}")))?;
+            MergeKind::Fusion { fusion }
+        }
         "merge.starStack" => {
             let star: StarStackOptions =
                 serde_json::from_value(p.get("star").cloned().unwrap_or(serde_json::json!({}))).map_err(|e| bad(format!("star: {e}")))?;

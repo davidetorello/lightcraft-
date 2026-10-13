@@ -61,7 +61,7 @@ pub struct StarResult {
 
 /// Align all frames to the first one.  Returns the aligned images in input order; frames that
 /// could not be aligned are kept as-is (identity homography).
-fn align_frames(imgs: &[Rgb32f], do_align: bool, progress: &Progress, p0: f32, p1: f32) -> Vec<Rgb32f> {
+pub(crate) fn align_frames(imgs: &[Rgb32f], do_align: bool, progress: &Progress, p0: f32, p1: f32) -> Vec<Rgb32f> {
     if !do_align || imgs.len() < 2 {
         return imgs.to_vec();
     }
@@ -86,32 +86,41 @@ fn align_frames(imgs: &[Rgb32f], do_align: bool, progress: &Progress, p0: f32, p
 }
 
 /// Iterative sigma-clipped mean of `values`.
+///
+/// Each value is judged against the mean and deviation of the *other* values (leave-one-out): an outlier that is
+/// part of its own yardstick inflates the deviation and escapes (with 5 frames no value can ever lie beyond 1.8
+/// standard deviations of a set that contains it), which left hot pixels and satellite trails in short stacks.
 fn clipped_mean(values: &[f32], sigma: f64, iters: u32) -> f32 {
-    if values.is_empty() {
+    // non-finite samples (a damaged frame) take no part
+    let finite: Vec<f64> = values.iter().filter(|x| x.is_finite()).map(|&x| f64::from(x)).collect();
+    if finite.is_empty() {
         return 0.0;
     }
-    let mut v = values.to_vec();
+    let mut v = finite.clone();
     for _ in 0..iters {
-        if v.len() <= 1 {
+        let n = v.len();
+        if n < 3 {
             break;
         }
-        let n = v.len() as f64;
-        let mean = v.iter().map(|&x| x as f64).sum::<f64>() / n;
-        let var = v.iter().map(|&x| (x as f64 - mean).powi(2)).sum::<f64>() / n;
-        let std = var.sqrt();
-        if std < 1e-9 {
+        let sum: f64 = v.iter().sum();
+        let sum_sq: f64 = v.iter().map(|x| x * x).sum();
+        let others = (n - 1) as f64;
+        let before = n;
+        v.retain(|&x| {
+            let mean = (sum - x) / others;
+            let var = ((sum_sq - x * x) / others - mean * mean).max(0.0);
+            // identical others (no spread at all): anything visibly different is an outlier
+            (x - mean).abs() <= (sigma * var.sqrt()).max(1e-6)
+        });
+        if v.len() == before {
             break;
         }
-        let lo = (mean - sigma * std) as f32;
-        let hi = (mean + sigma * std) as f32;
-        v.retain(|&x| x >= lo && x <= hi);
     }
     if v.is_empty() {
-        // all clipped — fall back to the raw mean
-        values.iter().map(|&x| x as f64).sum::<f64>() as f32 / values.len() as f32
-    } else {
-        v.iter().map(|&x| x as f64).sum::<f64>() as f32 / v.len() as f32
+        // all clipped: fall back to the raw mean
+        return (finite.iter().sum::<f64>() / finite.len() as f64) as f32;
     }
+    (v.iter().sum::<f64>() / v.len() as f64) as f32
 }
 
 // ── Public functions ──────────────────────────────────────────────────────────
@@ -244,6 +253,21 @@ mod tests {
     fn too_few_returns_error() {
         let opts = StarStackOptions::default();
         assert!(merge_star_stack(vec![], &opts, &crate::no_progress).is_err());
+    }
+
+    #[test]
+    fn clipped_mean_keeps_clean_noise_and_handles_tiny_sets() {
+        // ordinary noise around 0.5 is not clipped away: the result stays at the mean
+        let noisy = [0.48f32, 0.52, 0.5, 0.49, 0.51, 0.5, 0.47, 0.53];
+        assert!((super::clipped_mean(&noisy, 2.5, 3) - 0.5).abs() < 0.01);
+        // one and two values are averaged as they are, an empty set is zero
+        assert_eq!(super::clipped_mean(&[0.7], 2.5, 3), 0.7);
+        assert!((super::clipped_mean(&[0.2, 0.8], 2.5, 3) - 0.5).abs() < 1e-6);
+        assert_eq!(super::clipped_mean(&[], 2.5, 3), 0.0);
+        // a spike among identical values, and non-finite input, never produce NaN
+        assert!((super::clipped_mean(&[0.3, 0.3, 0.3, 0.3, 0.9], 2.5, 3) - 0.3).abs() < 1e-6);
+        assert!((super::clipped_mean(&[0.3, f32::NAN, 0.3, f32::INFINITY], 2.5, 3) - 0.3).abs() < 1e-6);
+        assert_eq!(super::clipped_mean(&[f32::NAN, f32::NEG_INFINITY], 2.5, 3), 0.0);
     }
 
     #[test]

@@ -40,7 +40,7 @@ cited here still exists. Formerly docs/parity.md.
 | L. Presets (PRE) | 6 | 0 | 1 | 1 | 2/2 (100%) | 2/2 (100%) |
 | M. Versions & history (VER) | 5 | 0 | 0 | 0 | 1/1 (100%) | 3/3 (100%) |
 | N. Copy / paste / sync (SYNC) | 5 | 0 | 0 | 0 | 3/3 (100%) | 1/1 (100%) |
-| O. Merge (MERGE) | 4 | 0 | 0 | 0 | — | — |
+| O. Merge (MERGE) | 4 | 2 | 0 | 0 | — | — |
 | P. Enhance (ENH) | 0 | 0 | 2 | 0 | — | — |
 | Q. HDR (HDR) | 2 | 3 | 0 | 0 | — | — |
 | R. Video (VID) | 0 | 0 | 5 | 1 | — | 0/2 (0%) |
@@ -53,9 +53,9 @@ cited here still exists. Formerly docs/parity.md.
 | Y. Menus | 84 | 0 | 4 | 8 | 47/47 (100%) | 23/23 (100%) |
 | Z. Keyboard shortcuts (desktop) | 76 | 3 | 3 | 1 | 49/52 (94%) | 23/24 (96%) |
 | Lightroom Classic extras | 34 | 16 | 35 | 8 | — | 24/26 (92%) |
-| **Total** | 407 | 50 | 73 | 35 | 192/200 (96%) | 145/157 (92%) |
+| **Total** | 408 | 53 | 72 | 35 | 193/201 (96%) | 145/157 (92%) |
 
-Weighted completion (✅ = 1, 🟡 = ½, 🚫 left out): **81.5%** of 530 in-scope rows — P0 98.0% of 200 · P1 95.2% of 157 · P2 49.7% of 172.
+Weighted completion (✅ = 1, 🟡 = ½, 🚫 left out): **81.5%** of 533 in-scope rows — P0 98.0% of 201 · P1 95.2% of 157 · P2 50.0% of 174.
 <!-- /parity:summary -->
 
 ## Top gaps and shortcut notes
@@ -350,6 +350,8 @@ differences and missing bindings are in [ui-parity.md](ui-parity.md#shortcuts).
 | LR-MERGE-PANO | Panorama | P2 | ✅ | `cmd:merge.panorama`, `cmd:dialog.mergePanorama` | spherical/cylindrical/perspective + auto, boundary warp, auto crop, fill edges (diffusion), DNG; no lens model / 360° wrap |
 | LR-MERGE-HDRPANO | HDR panorama | P2 | ✅ | `cmd:merge.hdrPanorama`, `cmd:dialog.mergeHdrPanorama` | brackets grouped by EXIF |
 | LR-MERGE-HEADLESS | Merge with last settings | P2 | ✅ | `cmd:merge.hdrLast`, `cmd:merge.panoramaLast`, `cmd:merge.hdrPanoramaLast` | no dialog; the options of the last merge of that kind (defaults the first time) |
+| LR-MERGE-FUSION | Exposure fusion (beyond Lightroom) | P2 | 🟡 | `cmd:merge.fusion` | Mertens et al. 2007: contrast / saturation / well-exposedness weights, Laplacian-pyramid blend, auto align; display-referred result written as a linear DNG; command only, no dialog yet; not compared against another implementation |
+| LR-MERGE-STAR | Star Stack and Star Trails (beyond Lightroom) | P2 | 🟡 | `cmd:merge.starStack`, `cmd:merge.starTrails`, `cmd:dialog.mergeStarStack` | leave-one-out sigma-clipped mean and per-pixel maximum, auto align; synthetic tests only, not measured on real night frames |
 
 ## P. Enhance (ENH)
 

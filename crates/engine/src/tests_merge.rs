@@ -92,3 +92,33 @@ fn panorama_command_with_auto_crop() {
     assert!(s.execute("merge.panorama", &json!({"ids": [ids[0]]})).is_err());
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn fusion_and_star_commands_merge_a_bracket() {
+    let dir = temp_dir("fusion");
+    let mut paths = Vec::new();
+    for (i, b) in lightcraft_merge::synth::bracket_dngs(480, 320, &[-2.0, 0.0, 2.0]).unwrap().into_iter().enumerate() {
+        let p = dir.join(format!("F_{i}.dng"));
+        std::fs::write(&p, b).unwrap();
+        paths.push(p.to_string_lossy().to_string());
+    }
+    let mut s = Session::new().with_fs();
+    let ids = import(&mut s, paths);
+    for (cmd, suffix, params) in [
+        ("merge.fusion", "Fusion", json!({"ids": ids, "fusion": {"autoAlign": false}, "autoSettings": false})),
+        ("merge.starStack", "StarStack", json!({"ids": ids, "star": {"autoAlign": false}, "autoSettings": false})),
+        ("merge.starTrails", "StarTrails", json!({"ids": ids, "star": {"autoAlign": false}, "autoSettings": false})),
+    ] {
+        let r = s.execute(cmd, &params).unwrap_or_else(|e| panic!("{cmd}: {e}"));
+        assert!(r["path"].as_str().unwrap().ends_with(&format!("F_0-{suffix}.dng")), "{cmd}: {r}");
+        assert_eq!(r["framesUsed"], 3, "{cmd}");
+        let id = lightcraft_catalog::PhotoId(r["id"].as_u64().unwrap());
+        let p = s.catalog.photo(id).unwrap().clone();
+        assert_eq!((p.width, p.height), (480, 320), "{cmd}");
+        assert_eq!(s.render_now(id, 128, 128).unwrap().image.width, 128, "{cmd}");
+        // one photo is not enough, a bad option is an error, not a panic
+        assert!(s.execute(cmd, &json!({"ids": [ids[0]]})).is_err(), "{cmd}");
+    }
+    assert!(s.execute("merge.fusion", &json!({"ids": ids, "fusion": {"sigma": "wide"}})).is_err());
+    let _ = std::fs::remove_dir_all(&dir);
+}

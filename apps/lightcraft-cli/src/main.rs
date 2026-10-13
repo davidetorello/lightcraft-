@@ -369,7 +369,10 @@ fn merge(args: &[String]) -> Result<(), String> {
         Some("hdr") => "merge.hdr",
         Some("panorama" | "pano") => "merge.panorama",
         Some("hdr-panorama") => "merge.hdrPanorama",
-        _ => return Err("merge: expected hdr, panorama or hdr-panorama".into()),
+        Some("fusion") => "merge.fusion",
+        Some("star-stack") => "merge.starStack",
+        Some("star-trails") => "merge.starTrails",
+        _ => return Err("merge: expected hdr, panorama, hdr-panorama, fusion, star-stack or star-trails".into()),
     };
     let mut p = serde_json::Map::new();
     let mut files = Vec::new();

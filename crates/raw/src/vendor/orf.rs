@@ -205,8 +205,7 @@ pub(crate) fn decode(bytes: &[u8], mode: Mode) -> Result<RawImage> {
         if chunks.len() != 1 {
             return Err(RawError::Corrupt("ORF compressed: expected a single strip".into()));
         }
-        let src = chunk_bytes(bytes, &chunks[0])
-            .ok_or_else(|| RawError::Corrupt("ORF compressed: strip outside file".into()))?;
+        let src = chunk_bytes(bytes, &chunks[0]).ok_or_else(|| RawError::Corrupt("ORF compressed: strip outside file".into()))?;
         let mut d = vec![0u16; n];
         orf_compress::decode_strip(src, w, h, &mut d)?;
         (RawData::U16(d), 12)
