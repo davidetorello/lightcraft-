@@ -666,6 +666,7 @@ mod tests {
             ("app.language.french", Locale::Fr),
             ("app.language.spanish", Locale::Es),
             ("app.language.german", Locale::De),
+            ("app.language.italian", Locale::It),
             ("app.language.russian", Locale::Ru),
             ("app.language.ukrainian", Locale::Uk),
         ];

@@ -22,6 +22,7 @@ pub const LANGUAGE_COMMANDS: &[UiCommand] = &[
     ("app.language.french", crate::i18n::Locale::Fr.name(), None, "Edit>Language"),
     ("app.language.spanish", crate::i18n::Locale::Es.name(), None, "Edit>Language"),
     ("app.language.german", crate::i18n::Locale::De.name(), None, "Edit>Language"),
+    ("app.language.italian", crate::i18n::Locale::It.name(), None, "Edit>Language"),
     ("app.language.russian", crate::i18n::Locale::Ru.name(), None, "Edit>Language"),
     ("app.language.ukrainian", crate::i18n::Locale::Uk.name(), None, "Edit>Language"),
 ];
@@ -44,6 +45,7 @@ pub fn language_from_command(id: &str) -> Option<crate::i18n::Locale> {
         "app.language.french" => Some(crate::i18n::Locale::Fr),
         "app.language.spanish" => Some(crate::i18n::Locale::Es),
         "app.language.german" => Some(crate::i18n::Locale::De),
+        "app.language.italian" => Some(crate::i18n::Locale::It),
         "app.language.russian" => Some(crate::i18n::Locale::Ru),
         "app.language.ukrainian" => Some(crate::i18n::Locale::Uk),
         _ => None,

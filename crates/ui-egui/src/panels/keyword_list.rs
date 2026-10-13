@@ -617,13 +617,13 @@ mod tests {
             "Export Keywords…",
         ];
         let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("locales");
-        for code in ["de", "es", "fr", "pt-br", "ru", "uk", "ja", "zh-hans", "zh-hant"] {
+        for code in ["de", "es", "fr", "it", "pt-br", "ru", "uk", "ja", "zh-hans", "zh-hant"] {
             let text = std::fs::read_to_string(dir.join(format!("{code}.json"))).unwrap();
             let catalog: std::collections::HashMap<String, String> = serde_json::from_str(&text).unwrap();
             for label in labels {
                 assert!(catalog.contains_key(label), "{code}: “{label}”");
             }
         }
-        assert_eq!(Locale::ALL.len(), 10, "a language added: list its file above");
+        assert_eq!(Locale::ALL.len(), 11, "a language added: list its file above");
     }
 }
