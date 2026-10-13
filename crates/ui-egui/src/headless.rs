@@ -479,6 +479,8 @@ mod tests {
         h.request("engine.execute", json!({"command": "library.select", "params": {"ids": [id.0]}}), t);
         h.request("ui.set", json!({"view": "detail"}), t);
         h.app.ui.open_sections = vec!["detail".to_string()];
+        // the masks sit on top of the Edit page: a tall window keeps the Detail section on screen
+        h.request("ui.resize", json!({"width": 1400, "height": 2400}), t);
         h.settle(SETTLE);
         h.step();
         h.step();
