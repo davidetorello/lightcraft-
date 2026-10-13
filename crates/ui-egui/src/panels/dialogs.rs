@@ -285,6 +285,8 @@ pub fn show(app: &mut LightcraftApp, ctx: &egui::Context) {
         .resize(|r| if import { r.default_height(crate::import::DIALOG_SIZE[1]) } else { r })
         .frame(frame)
         .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+        // a dialog never grows wider than the window, whatever its content asks for
+        .max_width((screen.width() - 2.0 * DIALOG_SCREEN_MARGIN).max(DIALOG_MIN_BODY))
         .default_width(match dlg {
             Dialog::Import { .. } => crate::import::DIALOG_SIZE[0],
             Dialog::SmartRules { .. } => 680.0,

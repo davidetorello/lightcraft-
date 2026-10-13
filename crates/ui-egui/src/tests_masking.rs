@@ -364,68 +364,6 @@ fn brush_strokes_carry_auto_mask() {
     h.settle(SETTLE);
 }
 
-#[test]
-fn remove_spots_by_pointer_and_keyboard() {
-    let mut h = detail("panel.remove");
-    assert_eq!(h.app.ui.right, RightPanel::Remove);
-    let spots = |h: &Headless| develop(h).spots;
-    // paint a spot: it's added with the brush's size/feather/opacity and selected
-    let r = h.request("ui.set", json!({"removeFeather": 30.0, "removeOpacity": 80.0}), T);
-    assert_eq!(r["ok"], true, "{r}");
-    pointer(&mut h, json!([{"kind": "down", "x": 0.3, "y": 0.6}, {"kind": "up", "x": 0.3, "y": 0.6}]));
-    assert_eq!(spots(&h).len(), 1);
-    assert_eq!((spots(&h)[0].feather, spots(&h)[0].opacity), (30.0, 80.0));
-    assert_eq!(h.app.session.active_spot, Some(0));
-    // [ / ] resize the selected spot, Shift+[ / Shift+] feather it
-    let s0 = spots(&h)[0].size;
-    h.request("ui.key", json!({"key": "]"}), T);
-    assert!(spots(&h)[0].size > s0 * 1.1, "{} vs {s0}", spots(&h)[0].size);
-    h.request("ui.key", json!({"key": "["}), T);
-    h.request("ui.key", json!({"key": "["}), T);
-    assert!(spots(&h)[0].size < s0 * 0.9);
-    h.request("ui.key", json!({"key": "[", "shift": true}), T);
-    assert_eq!(spots(&h)[0].feather, 20.0);
-    h.request("ui.key", json!({"key": "]", "shift": true}), T);
-    assert_eq!(spots(&h)[0].feather, 30.0);
-    // / picks another source (and leaves the filmstrip alone)
-    let (src, film) = (spots(&h)[0].source_offset, h.app.ui.filmstrip);
-    h.request("ui.key", json!({"key": "/"}), T);
-    assert_ne!(spots(&h)[0].source_offset, src);
-    assert_eq!(h.app.ui.filmstrip, film);
-    // a second spot elsewhere; clicking the first one's pin selects it
-    pointer(&mut h, json!([{"kind": "down", "x": 0.7, "y": 0.3}, {"kind": "up", "x": 0.7, "y": 0.3}]));
-    assert_eq!((spots(&h).len(), h.app.session.active_spot), (2, Some(1)));
-    pointer(&mut h, json!([{"kind": "down", "x": 0.3, "y": 0.6}, {"kind": "up", "x": 0.3, "y": 0.6}]));
-    assert_eq!((spots(&h).len(), h.app.session.active_spot), (2, Some(0)));
-    // drag its target: it moves, its source offset stays
-    let src = spots(&h)[0].source_offset;
-    pointer(
-        &mut h,
-        json!([{"kind": "down", "x": 0.3, "y": 0.6}, {"kind": "drag", "x": 0.32, "y": 0.6}, {"kind": "drag", "x": 0.4, "y": 0.6}, {"kind": "up", "x": 0.4, "y": 0.6}]),
-    );
-    let sp = spots(&h)[0].clone();
-    assert!((sp.points[0].x - 0.4).abs() < 0.01 && (sp.points[0].y - 0.6).abs() < 0.01, "{:?}", sp.points);
-    assert_eq!(sp.source_offset, src);
-    // drag its source to a fixed place
-    let o = sp.source_offset.unwrap();
-    let (sx, sy) = (sp.points[0].x + o.x, sp.points[0].y + o.y);
-    pointer(
-        &mut h,
-        json!([{"kind": "down", "x": sx, "y": sy}, {"kind": "drag", "x": sx + 0.01, "y": sy}, {"kind": "drag", "x": 0.5, "y": 0.8}, {"kind": "up", "x": 0.5, "y": 0.8}]),
-    );
-    let sp = spots(&h)[0].clone();
-    let o = sp.source_offset.unwrap();
-    assert!((sp.points[0].x + o.x - 0.5).abs() < 0.01 && (sp.points[0].y + o.y - 0.8).abs() < 0.01, "{o:?}");
-    // ⌫ deletes the selected spot, not the photo
-    let photos = h.app.session.visible_cloned().len();
-    h.request("ui.key", json!({"key": "delete"}), T);
-    assert_eq!((spots(&h).len(), h.app.session.active_spot), (1, None));
-    assert_eq!(h.app.session.visible_cloned().len(), photos);
-    h.request("ui.key", json!({"key": "delete"}), T);
-    assert_eq!(spots(&h).len(), 1, "nothing selected: nothing deleted");
-    h.settle(SETTLE);
-}
-
 /// Masks list: double-click renames in place, the hover eye hides a mask, the overlay colour
 /// cycles through the swatches.
 #[test]

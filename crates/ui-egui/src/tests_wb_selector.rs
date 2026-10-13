@@ -23,6 +23,8 @@ fn wb_selector_button_in_compare_opens_detail_like_w() {
     let r = h.request("engine.execute", json!({"command": "view.compare"}), T);
     assert_eq!(r["ok"], true, "{r}");
     h.app.ui.right = crate::state::RightPanel::Edit;
+    // the masks sit on top of the Edit page: a tall window keeps the Color section on screen
+    h.request("ui.resize", json!({"width": 1400, "height": 1800}), T);
     h.settle(SETTLE);
     // open the Color section, where the selector sits
     if !h.app.widgets.iter().any(|(w, _)| w == "icon:wbPicker") {

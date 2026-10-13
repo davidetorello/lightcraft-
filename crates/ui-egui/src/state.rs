@@ -295,7 +295,7 @@ impl Default for AppSettings {
             keymap: Default::default(),
             appearance_mode: AppearanceMode::Light,
             dark_theme: DarkTheme::Charcoal,
-            light_theme: LightTheme::Silver,
+            light_theme: LightTheme::Paper,
             favorite_themes: Vec::new(),
             display_profile: String::new(),
         }

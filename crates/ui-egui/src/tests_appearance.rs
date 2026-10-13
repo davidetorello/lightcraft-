@@ -22,15 +22,15 @@ fn frame(app: &mut LightcraftApp, ctx: &egui::Context) {
 }
 
 #[test]
-fn new_users_keep_the_dark_look_and_old_settings_load_unchanged() {
+fn new_users_start_in_the_light_look_and_old_settings_load_unchanged() {
     let s = AppSettings::default();
-    assert_eq!((s.appearance_mode, s.dark_theme, s.light_theme), (AppearanceMode::Dark, DarkTheme::Charcoal, LightTheme::Silver));
-    assert_eq!(s.theme(Some(egui::Theme::Light)), ThemeKind::Charcoal, "Auto is opt-in");
+    assert_eq!((s.appearance_mode, s.dark_theme, s.light_theme), (AppearanceMode::Light, DarkTheme::Charcoal, LightTheme::Paper));
+    assert_eq!(s.theme(Some(egui::Theme::Dark)), ThemeKind::Paper, "Auto is opt-in");
     // a ui.json saved before appearance modes existed
     let old: UiState = serde_json::from_str(r#"{"settings": {"gridBadges": "always", "confirmDelete": true}}"#).unwrap();
-    assert_eq!(old.settings.appearance_mode, AppearanceMode::Dark);
+    assert_eq!(old.settings.appearance_mode, AppearanceMode::Light);
     assert_eq!(old.settings.dark_theme, DarkTheme::Charcoal);
-    assert_eq!(old.settings.light_theme, LightTheme::Silver);
+    assert_eq!(old.settings.light_theme, LightTheme::Paper);
     assert!(old.settings.confirm_delete);
     // and the Charcoal tokens are the ones LightCraft always had
     assert_eq!(crate::theme::Tokens::for_kind(ThemeKind::Charcoal).chrome, crate::theme::Tokens::default().chrome);
@@ -114,7 +114,7 @@ fn auto_follows_the_system_and_falls_back_to_dark() {
     a.run("view.appearance", json!({"mode": "auto"})).unwrap();
     let ctx = egui::Context::default();
     frame(&mut a, &ctx);
-    assert_eq!(crate::theme::current(&ctx), Some(ThemeKind::Silver));
+    assert_eq!(crate::theme::current(&ctx), Some(ThemeKind::Paper));
     assert_eq!(ctx.theme(), egui::Theme::Light);
     *system.lock().unwrap() = Some(egui::Theme::Dark);
     frame(&mut a, &ctx);
@@ -134,7 +134,7 @@ fn auto_follows_the_system_and_falls_back_to_dark() {
         plain.logic(ui.ctx());
     });
     output.textures_delta.clear();
-    assert_eq!(crate::theme::current(&ctx), Some(ThemeKind::Silver));
+    assert_eq!(crate::theme::current(&ctx), Some(ThemeKind::Paper));
 }
 
 #[test]
@@ -152,6 +152,8 @@ fn view_menu_lists_modes_and_themes_with_checks() {
 #[test]
 fn the_top_bar_button_and_settings_cards_drive_the_mode() {
     let mut h = Headless::new(app(), [1400.0, 900.0], 1.0);
+    // the cycle is Auto → Light → Dark → Auto; start it from Dark
+    h.app.ui.settings.appearance_mode = AppearanceMode::Dark;
     h.settle(Duration::from_secs(60));
     assert_eq!(h.request("ui.clickWidget", json!({"id": "icon:appearance"}), T)["ok"], true);
     h.step();
@@ -160,7 +162,7 @@ fn the_top_bar_button_and_settings_cards_drive_the_mode() {
     h.step();
     h.step();
     assert_eq!(h.app.ui.settings.appearance_mode, AppearanceMode::Light);
-    assert_eq!(crate::theme::current(&h.view.ctx), Some(ThemeKind::Silver));
+    assert_eq!(crate::theme::current(&h.view.ctx), Some(ThemeKind::Paper));
     // Settings ▸ Interface: the mode buttons and the theme radios
     h.app.ui.dialog = Some(crate::state::Dialog::Settings { tab: "interface".into() });
     h.step();
@@ -223,7 +225,7 @@ fn favorites_validate_roundtrip_and_stars_toggle_without_selecting() {
         std::fs::create_dir_all(&path).unwrap();
         std::fs::write(std::path::Path::new(&path).join("lightcraft-favorites.png"), png).unwrap();
     }
-    assert_eq!(h.app.ui.settings.light_theme, LightTheme::Silver, "starring does not select");
+    assert_eq!(h.app.ui.settings.light_theme, LightTheme::Paper, "starring does not select");
     let saved = serde_json::to_value(&h.app.ui.settings).unwrap();
     assert_eq!(serde_json::from_value::<AppSettings>(saved).unwrap(), h.app.ui.settings);
     assert_eq!(h.request("ui.clickWidget", json!({"id": "button:themeFavorite-paper"}), T)["ok"], true);

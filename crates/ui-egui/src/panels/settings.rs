@@ -103,7 +103,11 @@ pub(super) fn choices<V: PartialEq + Copy>(ui: &mut egui::Ui, id: &str, options:
 fn general_tab(app: &mut LightcraftApp, ui: &mut egui::Ui, t: &Tokens) {
     row(ui, t, crate::i18n::tr("Language"), |ui| {
         let languages: Vec<_> = crate::i18n::Locale::ALL.iter().map(|language| (*language, language.name())).collect();
-        choices(ui, "settingsLanguage", &languages, &mut app.ui.language);
+        // eleven languages: the buttons wrap instead of stretching the dialog past the window
+        ui.vertical(|ui| {
+            ui.set_max_width(ui.available_width());
+            ui.horizontal_wrapped(|ui| choices(ui, "settingsLanguage", &languages, &mut app.ui.language));
+        });
         crate::i18n::set_language(app.ui.language);
     });
     heading(ui, t, crate::i18n::tr("Library"));

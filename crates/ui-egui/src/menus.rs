@@ -98,6 +98,7 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("view.maskOverlayMode", "Cycle Mask Overlay Mode", None, "View"),
     ("view.maskOverlayColor", "Cycle Mask Overlay Color", None, "View"),
     ("view.maskPins", "Show Mask Pins", None, "View"),
+    ("crop.aspectLock", "Lock Aspect Ratio", Some("A"), ""),
     ("view.cropOverlay", "Cycle Crop Overlay", Some("Shift+O"), "View"),
     ("view.cropOverlayOrientation", "Cycle Crop Overlay Orientation", None, "View"),
     ("view.back", "Back to Grid", Some("Escape"), ""),
@@ -865,6 +866,10 @@ pub fn run_ui_command(app: &mut LightcraftApp, id: &str, p: &Value) -> Option<Re
         "view.maskPins" => {
             app.ui.mask_pins = p.get("show").and_then(Value::as_bool).unwrap_or(!app.ui.mask_pins);
             Ok(json!({"maskPins": app.ui.mask_pins}))
+        }
+        "crop.aspectLock" => {
+            // A locks the crop aspect while cropping and does nothing elsewhere
+            if app.ui.right == RightPanel::Crop { app.run("crop.aspect", json!({"aspect": "toggle"})) } else { Ok(Value::Null) }
         }
         "view.cropOverlay" => {
             use crate::state::CropOverlay::*;
