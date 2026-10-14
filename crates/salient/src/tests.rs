@@ -6,7 +6,8 @@ const ID_STD: [f32; 3] = [1.0; 3];
 #[test]
 fn preprocess_rejects_empty_and_mismatched_images() {
     assert!(preprocess(&[], 0, 0, 8, ID_MEAN, ID_STD).is_none());
-    assert!(preprocess(&[0; 12], 2, 2, 8, ID_MEAN, ID_STD).is_none(), "3 bytes per pixel: 2×2 needs 12");
+    assert!(preprocess(&[0; 12], 2, 2, 8, ID_MEAN, ID_STD).is_some(), "3 bytes per pixel: 2×2 needs exactly 12");
+    assert!(preprocess(&[0; 13], 2, 2, 8, ID_MEAN, ID_STD).is_none());
     assert!(preprocess(&[0; 11], 2, 2, 8, ID_MEAN, ID_STD).is_none());
     assert!(preprocess(&[0; 12], 2, 2, 0, ID_MEAN, ID_STD).is_none());
     // sizes whose product overflows are refused rather than wrapping
