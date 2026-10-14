@@ -375,3 +375,17 @@ fn auto_mask_strokes_match_the_whole_render() {
     };
     check_noisy("auto mask", &s, PixelWindow { x: 400, y: 300, w: 300, h: 250 }, 2, 0.1);
 }
+
+// Given soft proofing with the gamut warning on, a window matches the same pixels of the whole
+// proofed render (the proof is a per-pixel step, so zoomed views can proof a window).
+#[test]
+fn a_proofed_window_matches_the_proofed_full_render() {
+    let s = DevelopSettings::default();
+    let proof = crate::Proof { space: crate::OutputSpace::Srgb, dest_warning: true, display_warning: false, profile: 0 };
+    let req = RenderRequest { proof: Some(proof), ..RenderRequest::fit(W, H) };
+    let f = render(&scene(), &SourceInfo::default(), &s, &req).image;
+    let w = render(&scene(), &SourceInfo::default(), &s, &RenderRequest { window: Some(MID), ..req }).image;
+    assert_eq!((w.width, w.height), (MID.w, MID.h));
+    let (max, mean) = compare(&f, &w, MID);
+    assert!(max <= 2 && mean <= 0.1, "max {max}, mean {mean:.3}");
+}

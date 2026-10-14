@@ -260,6 +260,8 @@ pub(crate) fn overlay_supports_window(overlay: lightcraft_pipeline::Overlay) -> 
 struct WindowCtx {
     id: PhotoId,
     overlay: lightcraft_pipeline::Overlay,
+    /// Soft proofing of the After side (the Before side is never proofed).
+    proof: Option<lightcraft_pipeline::Proof>,
     /// Long edge of the frame the windows are cut from (`None`: no windows).
     frame_edge: Option<usize>,
     drawn_long: f32,
@@ -331,9 +333,11 @@ fn request_window(app: &mut LightcraftApp, c: &WindowCtx, v: &WindowView) -> Opt
     let overlay = if v.before { lightcraft_pipeline::Overlay::None } else { c.overlay };
     let job = if v.before { job } else { job.with_hidden_grading(app.ui.grading_hidden_for(c.id)) };
     let job = job.with_overlay(overlay);
-    // The overlay is part of the tile's identity too, so changing mask view/colour never leaves a
-    // stale region tile on screen while its replacement renders.
-    let look = job.settings.hash64() ^ overlay.key().rotate_left(17);
+    let proof = if v.before { None } else { c.proof };
+    let job = job.with_proof(proof);
+    // The overlay and the proof are part of the tile's identity too, so changing mask view/colour
+    // or the proof never leaves a stale region tile on screen while its replacement renders.
+    let look = job.settings.hash64() ^ overlay.key().rotate_left(17) ^ proof.map_or(0, |p| p.key()).rotate_left(29);
     let view = crate::region::RegionView { photo: c.id, before: v.before, key: job.key, full: (fw, fh), window: win, settings: look };
     // windows of other photos, looks and zooms of this side can't be drawn any more
     app.region_tiles.retain(|(before, _), t| *before != v.before || t.is_current(c.id, (fw, fh), look, c.interacting));
@@ -443,15 +447,16 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
     // the whole frame at about canvas size; the zoomed part of it is a window render (below)
     let look = d.hash64();
     let overlay = view_overlay(app, &d);
-    // Diagnostic views that need whole-frame context, soft proofing, or reads too far for one
-    // window still render the whole frame at the size it is drawn. A mask overlay is window-safe.
+    // Diagnostic views that need whole-frame context, or reads too far for one window, still
+    // render the whole frame at the size it is drawn. Mask overlays and soft proofing (a
+    // per-pixel step) are window-safe.
     let sizes = crate::region::ViewSizes {
         drawn_long,
         canvas_long: canvas.width().max(canvas.height()) * ppp,
         native_long,
         texture_side,
         draft_scale: scale,
-        windows: !app.ui.soft_proof && overlay_supports_window(overlay),
+        windows: overlay_supports_window(overlay),
     };
     let mut plan = crate::region::plan(&app.ui.settings, sizes);
     if plan.window_edge.is_some_and(|edge| app.window_refused == Some((id, look, edge))) {
@@ -519,13 +524,13 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
         app.renderer.request(Slot::Before, job, 90);
     }
     // zoomed past what the whole-frame render holds: also render the part on screen, at no more
-    // than 100 % (the GPU magnifies beyond that), for each side that is shown. Mask overlays use
-    // the same window; diagnostic overlays that need whole-frame context do not.
-    let windowable_view =
-        hover_key.is_none() && !app.ui.soft_proof && overlay_supports_window(overlay) && crate::region::same_aspect(display_aspect, aspect);
+    // than 100 % (the GPU magnifies beyond that), for each side that is shown. Mask overlays and soft
+    // proofing use the same window; diagnostic overlays that need whole-frame context do not.
+    let windowable_view = hover_key.is_none() && overlay_supports_window(overlay) && crate::region::same_aspect(display_aspect, aspect);
     let window_ctx = WindowCtx {
         id,
         overlay,
+        proof: app.ui.soft_proof.then_some(app.ui.proof),
         frame_edge: plan.window_edge.filter(|_| windowable_view),
         drawn_long,
         aspect,
