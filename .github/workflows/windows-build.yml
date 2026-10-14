@@ -1,0 +1,52 @@
+# Unsigned Windows (x64) build for trying Lumen on a Windows PC without compiling locally.
+# Run it from the Actions tab (Windows build ▸ Run workflow); the installer (.msi) and the portable
+# .zip are in the run's artifacts. The real, signed build is release.yml.
+name: Windows build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  windows:
+    name: Windows x64 (unsigned)
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: storytold/craft-fonts
+          ref: 8dcdacd5153e64560d109541a47d806f26f048c0 # same pin as release.yml
+          path: craft-fonts
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: windows-build-x64
+      - name: Install WiX
+        shell: pwsh
+        run: dotnet tool install --global wix --version 5.0.2
+      - name: Build the AI mask models
+        shell: bash
+        run: tools/build-salient-models.sh "$RUNNER_TEMP/models"
+      - name: Build and package (unsigned)
+        shell: pwsh
+        env:
+          CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
+          LIGHTCRAFT_MODELS_DIR: ${{ runner.temp }}/models
+          LIGHTCRAFT_MODELS_REQUIRED: "1"
+          DIST: ${{ github.workspace }}\dist\x64
+        run: ./packaging/windows/package.ps1 -Arch x64
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lumen-windows-x64
+          path: dist/x64/*
+          if-no-files-found: error

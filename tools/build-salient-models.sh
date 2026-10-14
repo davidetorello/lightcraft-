@@ -15,7 +15,8 @@ fetch() { # name file sha256
 }
 fetch isnet-general-use.onnx general.onnx 60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a
 fetch u2net_human_seg.onnx person.onnx 01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c
-python3 -m venv "$work/venv"
+py3="$(command -v python3 || command -v python)" || { echo "error: python not found" >&2; exit 1; }
+"$py3" -m venv "$work/venv"
 py="$work/venv/bin/python"; [ -x "$py" ] || py="$work/venv/Scripts/python.exe"
 "$py" -m pip install --quiet onnx onnxruntime
 "$py" - "$work" "$out" <<'PY'
