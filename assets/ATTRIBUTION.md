@@ -34,3 +34,8 @@ Notes
   [storytold/craft-fonts](https://github.com/storytold/craft-fonts), with their licences and attribution in its
   `ATTRIBUTION.md`, and are embedded only in builds made with the optional `CRAFT_FONTS_DIR` build input (all official
   releases). Never commit font files here; add new fonts to craft-fonts (craftrules `standards/fonts.md`).
+
+Segmentation models (not stored in this repository). Release builds embed two ONNX models built by
+`tools/build-salient-models.sh` from upstream files pinned by sha256: ISNet general use (DIS, Xuebin Qin et al.) and
+U²-Net human segmentation (Xuebin Qin et al.), both Apache-2.0, obtained from the rembg release assets
+(https://github.com/danielgatis/rembg/releases/tag/v0.0.0) and quantized to 8 bits. See `docs/ai-masks.md`.

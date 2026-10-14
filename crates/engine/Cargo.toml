@@ -39,6 +39,7 @@ ab_glyph = { workspace = true }
 harfrust = { version = "0.12", default-features = false, features = ["std"] }
 unicode-segmentation = "1.13"
 lightcraft-segment = { workspace = true, optional = true }
+lightcraft-salient = { workspace = true, optional = true }
 
 # model downloads run natively only (the web build fetches no models)
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -47,6 +48,8 @@ lightcraft-fetch = { workspace = true }
 [features]
 # AI masks with SAM 3 (Object / Describe). Off for the web and CLI builds.
 sam = ["dep:lightcraft-segment"]
+# Subject / Background / People masks from two small embedded models (pure Rust, tract). Off for the web build.
+salient = ["dep:lightcraft-salient"]
 denoise = ["dep:lightcraft-denoise", "lightcraft-denoise/runtime", "lightcraft-gpu/denoise"]
 rawnind-model = ["denoise", "lightcraft-denoise/rawnind-model", "lightcraft-denoise-core/rawnind-model"]
 

@@ -981,6 +981,15 @@ pub enum MaskShape {
         person: u32,
         parts: Vec<String>,
     },
+    /// Subject, Background or People found by a segmentation model (`lightcraft-salient`): `class` is
+    /// `subject`, `background` or `people`, `seg` the model's result over the whole photo, kept here so
+    /// that nothing needs the model afterwards. Without `seg` (no model, or still computing) the
+    /// heuristic of the same name stands in.
+    Salient {
+        class: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        seg: Option<crate::SegMask>,
+    },
     Landscape {
         class: String,
     },

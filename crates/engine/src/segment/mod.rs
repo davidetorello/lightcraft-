@@ -591,6 +591,7 @@ impl Session {
                 self.segmenter.pending = None;
             }
         }
+        self.salient_poll(&mut polled);
         polled
     }
 

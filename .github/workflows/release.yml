@@ -95,10 +95,15 @@ jobs:
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: packaging/macos/import-cert.sh
+      - name: Build the AI mask models
+        shell: bash
+        run: tools/build-salient-models.sh "$RUNNER_TEMP/models"
       - name: Build, sign, notarize
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          LIGHTCRAFT_MODELS_DIR: ${{ runner.temp }}/models
+          LIGHTCRAFT_MODELS_REQUIRED: "1"
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -152,11 +157,16 @@ jobs:
       - name: Install WiX
         shell: pwsh
         run: dotnet tool install --global wix --version 5.0.2
+      - name: Build the AI mask models
+        shell: bash
+        run: tools/build-salient-models.sh "$RUNNER_TEMP/models"
       - name: Build, sign, package
         shell: pwsh
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          LIGHTCRAFT_MODELS_DIR: ${{ runner.temp }}/models
+          LIGHTCRAFT_MODELS_REQUIRED: "1"
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
           WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -212,10 +222,15 @@ jobs:
       - name: Apply version override
         if: inputs.version != ''
         run: cargo xtask version set "$LIGHTCRAFT_VERSION"
+      - name: Build the AI mask models
+        shell: bash
+        run: tools/build-salient-models.sh "$RUNNER_TEMP/models"
       - name: Build and package (AppImage, deb, rpm, tar.gz)
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          LIGHTCRAFT_MODELS_DIR: ${{ runner.temp }}/models
+          LIGHTCRAFT_MODELS_REQUIRED: "1"
         run: packaging/linux/package.sh
       - name: Check the packages
         run: |
@@ -322,10 +337,15 @@ jobs:
             gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu libc6-dev-riscv64-cross libc6-dev:riscv64 qemu-user \
             libxkbcommon-dev:riscv64 libwayland-dev:riscv64 libx11-dev:riscv64 libxrandr-dev:riscv64 \
             libxi-dev:riscv64 libgl1-mesa-dev:riscv64
+      - name: Build the AI mask models
+        shell: bash
+        run: tools/build-salient-models.sh "$RUNNER_TEMP/models"
       - name: Build and package (tar.gz)
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          LIGHTCRAFT_MODELS_DIR: ${{ runner.temp }}/models
+          LIGHTCRAFT_MODELS_REQUIRED: "1"
           CARGO_TARGET_RISCV64GC_UNKNOWN_LINUX_GNU_LINKER: riscv64-linux-gnu-gcc
           PKG_CONFIG_SYSROOT_DIR: /
           PKG_CONFIG_PATH: /usr/lib/riscv64-linux-gnu/pkgconfig:/usr/share/pkgconfig
@@ -429,10 +449,15 @@ jobs:
       - name: Apply version override
         if: inputs.version != ''
         run: cargo xtask version set "$LIGHTCRAFT_VERSION"
+      - name: Build the AI mask models
+        shell: bash
+        run: tools/build-salient-models.sh "$RUNNER_TEMP/models"
       - name: Build and zip
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
           CRAFT_FONTS_REQUIRED: "1"
+          LIGHTCRAFT_MODELS_DIR: ${{ runner.temp }}/models
+          LIGHTCRAFT_MODELS_REQUIRED: "1"
         run: packaging/web/package.sh
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

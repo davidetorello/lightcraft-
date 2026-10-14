@@ -247,6 +247,21 @@ pub fn shape_alpha(shape: &MaskShape, frame: &Frame, w: usize, h: usize, img: &R
                 smooth_plane(&mut out, e * 0.02 * frame_px(frame, w));
             }
         }
+        MaskShape::Salient { class, seg: Some(seg) } => {
+            sample_seg(Some(seg), &[], SALIENT_GAIN, frame, w, h, &mut out);
+            if class == "background" {
+                out.data.iter_mut().for_each(|v| *v = 1.0 - *v);
+            }
+        }
+        // no model, or the model is still working: the heuristic of the same name stands in
+        MaskShape::Salient { class, seg: None } => {
+            let stand_in = match class.as_str() {
+                "background" => MaskShape::Background,
+                "people" => MaskShape::People { person: 0, parts: Vec::new() },
+                _ => MaskShape::Subject,
+            };
+            out = shape_alpha(&stand_in, frame, w, h, img, log_l, ev, mattes);
+        }
         // not computed yet (no clicks, or a build without the model): nothing selected
         MaskShape::Object { hint, .. } if hint.is_empty() => {}
         MaskShape::Prompt { .. } => {}
@@ -272,6 +287,9 @@ pub fn shape_alpha(shape: &MaskShape, frame: &Frame, w: usize, h: usize, img: &R
     }
     out
 }
+
+/// How much steeper a segmentation model's probability is made at the edge (its logits are stretched).
+const SALIENT_GAIN: f32 = 1.5;
 
 /// A decoded [`SegMask`]: its logits and the normalized rectangle they cover.
 struct SegGrid {
@@ -671,6 +689,34 @@ mod tests {
         let shape = MaskShape::Prompt { text: "left".into(), seg: Some(seg), detail: vec![], edge: 0.0 };
         let a = shape_alpha(&shape, &f, 20, 20, &Rgb32f::new(20, 20), &Plane::new(20, 20), 0.0, None);
         assert!(a.data.iter().all(|v| *v < 0.05));
+    }
+
+    #[test]
+    fn model_found_subjects_and_backgrounds_are_complements_and_follow_the_crop() {
+        let side = 16;
+        let logits: Vec<f32> = (0..side * side).map(|i| if i % side < side / 2 { 12.0 } else { -12.0 }).collect();
+        let seg = SegMask::from_logits(side, &logits);
+        let (w, h) = (200, 100);
+        let alpha = |class: &str| {
+            let shape = MaskShape::Salient { class: class.into(), seg: Some(seg.clone()) };
+            shape_alpha(&shape, &frame(w, h), w, h, &Rgb32f::new(w, h), &Plane::new(w, h), 0.0, None)
+        };
+        let (subject, people, background) = (alpha("subject"), alpha("people"), alpha("background"));
+        assert!(subject.get(10, 50) > 0.99 && subject.get(190, 50) < 0.01);
+        assert_eq!(subject.data, people.data);
+        assert!(background.get(10, 50) < 0.01 && background.get(190, 50) > 0.99);
+        // without a selection (no model, or still working) the heuristic stands in and still gives a mask
+        let stand_in = shape_alpha(
+            &MaskShape::Salient { class: "subject".into(), seg: None },
+            &frame(w, h),
+            w,
+            h,
+            &Rgb32f::new(w, h),
+            &Plane::new(w, h),
+            0.0,
+            None,
+        );
+        assert_eq!(stand_in.data.len(), w * h);
     }
 
     #[test]

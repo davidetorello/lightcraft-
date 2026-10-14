@@ -31,9 +31,14 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           key: mac-build-aarch64
+      - name: Build the AI mask models
+        shell: bash
+        run: tools/build-salient-models.sh "$RUNNER_TEMP/models"
       - name: Build and package
         env:
           CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
+          LIGHTCRAFT_MODELS_DIR: ${{ runner.temp }}/models
+          LIGHTCRAFT_MODELS_REQUIRED: "1"
         run: packaging/macos/package.sh --arch aarch64
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

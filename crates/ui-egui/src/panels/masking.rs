@@ -55,6 +55,11 @@ fn kind_label(s: &MaskShape) -> (&'static str, Icon) {
         MaskShape::Object { .. } => ("Object", Icon::Subject),
         MaskShape::Prompt { .. } => ("Describe", Icon::Subject),
         MaskShape::People { .. } => ("People", Icon::Subject),
+        MaskShape::Salient { class, .. } => match class.as_str() {
+            "background" => ("Background", Icon::Subject),
+            "people" => ("People", Icon::Subject),
+            _ => ("Subject", Icon::Subject),
+        },
         MaskShape::Landscape { .. } => ("Landscape", Icon::Sky),
     }
 }
@@ -93,10 +98,11 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui, id: PhotoId) {
     egui::Frame::NONE.inner_margin(egui::Margin { left: 24, right: 22, top: 0, bottom: 10 }).show(ui, |ui| {
         ui.label(egui::RichText::new(crate::i18n::tr("Create New Mask")).color(t.text_dim));
         ui.add_space(6.0);
-        let tiles: [(&str, &str, Icon); 10] = [
+        let tiles: [(&str, &str, Icon); 11] = [
             ("object", "Object", Icon::Subject),
             ("prompt", "Describe", Icon::Subject),
             ("subject", "Subject", Icon::Subject),
+            ("people", "People", Icon::Subject),
             ("sky", "Sky", Icon::Sky),
             ("background", "Background", Icon::Subject),
             ("brush", "Brush", Icon::Brush),

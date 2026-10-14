@@ -1,0 +1,19 @@
+[package]
+name = "lightcraft-salient"
+version.workspace = true
+edition.workspace = true
+license = "MIT OR Apache-2.0"
+description = "LightCraft salient-object and person segmentation: small ONNX models run in pure Rust (L3)"
+
+[lints]
+workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+log = { workspace = true }
+
+# the models run natively only (the web build has no AI masks)
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tract-onnx = "=0.23.8"
+# lets one inference use every core
+tract-linalg = { version = "=0.23.8", features = ["multithread-mm"] }

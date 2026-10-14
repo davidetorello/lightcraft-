@@ -36,7 +36,7 @@ cited here still exists. Formerly docs/parity.md.
 | H. Crop & rotate (CROP) | 9 | 0 | 0 | 1 | 6/6 (100%) | 3/3 (100%) |
 | I. Remove / healing (REM) | 7 | 1 | 2 | 3 | 4/4 (100%) | 1/3 (33%) |
 | J. Red eye (EYE) | 1 | 0 | 0 | 1 | — | 0/1 (0%) |
-| K. Masking (MASK) | 13 | 5 | 5 | 0 | 7/8 (88%) | 5/5 (100%) |
+| K. Masking (MASK) | 13 | 6 | 4 | 0 | 7/8 (88%) | 5/5 (100%) |
 | L. Presets (PRE) | 6 | 0 | 1 | 1 | 2/2 (100%) | 2/2 (100%) |
 | M. Versions & history (VER) | 5 | 0 | 0 | 0 | 1/1 (100%) | 3/3 (100%) |
 | N. Copy / paste / sync (SYNC) | 5 | 0 | 0 | 0 | 3/3 (100%) | 1/1 (100%) |
@@ -53,9 +53,9 @@ cited here still exists. Formerly docs/parity.md.
 | Y. Menus | 82 | 0 | 4 | 10 | 47/47 (100%) | 23/23 (100%) |
 | Z. Keyboard shortcuts (desktop) | 73 | 3 | 3 | 4 | 48/52 (92%) | 22/24 (92%) |
 | Lightroom Classic extras | 34 | 16 | 35 | 8 | — | 24/26 (92%) |
-| **Total** | 401 | 53 | 72 | 42 | 192/201 (96%) | 142/157 (90%) |
+| **Total** | 401 | 54 | 71 | 42 | 192/201 (96%) | 142/157 (90%) |
 
-Weighted completion (✅ = 1, 🟡 = ½, 🚫 left out): **81.3%** of 526 in-scope rows — P0 98.0% of 200 · P1 95.1% of 154 · P2 49.1% of 171.
+Weighted completion (✅ = 1, 🟡 = ½, 🚫 left out): **81.4%** of 526 in-scope rows — P0 98.0% of 200 · P1 95.1% of 154 · P2 49.4% of 171.
 <!-- /parity:summary -->
 
 ## Top gaps and shortcut notes
@@ -286,11 +286,11 @@ differences and missing bindings are in [ui-parity.md](ui-parity.md#shortcuts).
 | Id | Feature | Tier | Status | Evidence | Missing / notes |
 |---|---|---|---|---|---|
 | LR-MASK-PANEL | Masks panel | P0 | ✅ | `cmd:panel.masking`, `cmd:mask.add`, `cmd:mask.select`, `cmd:mask.rename`, `cmd:mask.duplicate` (`invert`), `cmd:mask.move`, `cmd:mask.visible`, `cmd:mask.delete`, `crates/ui-egui/src/panels/masking.rs` | list with per-mask show/hide eye, double-click rename, right-click menu (duplicate, duplicate and invert, invert, hide, move up/down, rename, delete); fits any panel width (create tiles go to three columns, mask actions wrap, long component names are cut short); no drag-to-reorder |
-| LR-MASK-SUBJECT | Select subject | P2 | 🟡 | `cmd:mask.add` (`subject`), `crates/pipeline/src/masks.rs` | saliency heuristic, no segmentation model; a photo that carries person mattes (DNG semantic masks: iPhone ProRAW portrait / skin / hair / teeth / glasses mattes) uses them instead (synthetic files only: no corpus file carries person mattes) |
+| LR-MASK-SUBJECT | Select subject | P2 | 🟡 | `cmd:mask.add` (`subject`), `crates/pipeline/src/masks.rs`, `crates/salient`, `crates/engine/src/salient.rs`, `docs/ai-masks.md` | built-in segmentation models (ISNet + U²-Net human, pure Rust, embedded in release builds, no download; result stored with the mask) — builds without the models and photos not yet analyzed use the saliency heuristic; checked on one real photo only; a photo that carries person mattes (DNG semantic masks: iPhone ProRAW portrait / skin / hair / teeth / glasses mattes) uses them instead (synthetic files only: no corpus file carries person mattes) |
 | LR-MASK-SKY | Select sky | P2 | 🟡 | `cmd:mask.add` (`sky`), `crates/pipeline/src/masks.rs` (`Mattes`), `crates/raw/src/semantic.rs` | classical sky segmenter (`crates/pipeline/src/sky.rs`, a port of Lumen's SkySegmenter: gradient/colour seed, region growing, horizon limit, guided-filter edges, found once on a whole-frame proxy so windowed = whole renders); a photo that carries a sky matte (DNG semantic mask, e.g. iPhone ProRAW) uses it instead, through orientation / crop / lens corrections, preview = export (checked on one CC0 iPhone 12 Pro ProRAW and synthetic files) |
-| LR-MASK-BACKGROUND | Select background | P2 | 🟡 | `cmd:mask.add` (`background`) | inverse of the subject mask (heuristic, or the photo's person mattes) |
+| LR-MASK-BACKGROUND | Select background | P2 | 🟡 | `cmd:mask.add` (`background`) | inverse of the subject mask (built-in models; heuristic without them, or the photo's person mattes) |
 | LR-MASK-OBJECTS | Object selection | P2 | 🟡 | `cmd:mask.add` (`object`, `prompt`), `cmd:mask.objectPoint`, `cmd:mask.refineDetail`, `cmd:segment.prepare`, `cmd:segment.model.status`, `cmd:segment.model.download`, `cmd:segment.model.cancel`, `crates/segment`, `crates/engine/src/segment/mod.rs` | SAM 3 in pure Rust (candle; Metal on macOS, CPU elsewhere): Object tile → click to include, ⌥-click to leave out; Describe tile → a text prompt selects every instance ("sky", "the red car"); both also as Add/Subtract/Intersect components; + / − under the selected mask; comma lists (`car, road`); a zoomed-in detail pass for 5–10× finer edges on small objects; per-selection Edge (hard ↔ soft). The model runs on its own worker thread (the UI never waits; panics become errors), is unloaded after 10 min idle, and is optional: the segmentation is stored with the mask (288² logits), so renders and exports never need it. Weights are never bundled (SAM License): without them the app offers a consented background download (mirrors, resume, timeouts, SHA-256) — **but no default download location is configured yet** (users set `LIGHTCRAFT_SAM3_MIRRORS` or install by hand: the dialog names the three files, shows the model folder and links docs/ai-masks.md). Not verified against Lightroom's Select Object; no brush/box object mode; the first click on a photo waits for its analysis (~4 s on an M4 Pro, much longer on CPU) |
-| LR-MASK-PEOPLE | People parts | P2 | ⬜ | | shape exists (no UI): uses the photo's person / skin / hair / teeth / glasses mattes when it carries them (DNG semantic masks), else the subject heuristic |
+| LR-MASK-PEOPLE | People parts | P2 | 🟡 | | People tile in the Masking panel: the built-in human-segmentation model (whole people incl. clothes; no per-part selection yet). Per-part shape (no UI): uses the photo's person / skin / hair / teeth / glasses mattes when it carries them (DNG semantic masks), else the subject heuristic |
 | LR-MASK-LANDSCAPE | Landscape classes | P2 | ⬜ | | shape exists, evaluates empty |
 | LR-MASK-BRUSH | Brush mask | P0 | 🟡 | `cmd:tool.brush`, `cmd:mask.brushStroke` (`autoMask`), `crates/pipeline/src/masks.rs`, `crates/ui-egui/src/brush_live.rs` | size/feather/flow/density/erase; Create New Mask starts a separate brush in paint mode; the stroke shows while the button is held with the committed stroke's dab spacing, feather and flow, so fast strokes have no gaps (#517); coverage builds up by passes, not hold time (holding the brush still adds nothing, live or committed, #518); Auto Mask: dabs weighted by similarity to the colour under the dab centre, refined by a guided filter on luminance (CPU + GPU); no A/B brushes, no pressure |
 | LR-MASK-LINEAR | Linear gradient | P0 | ✅ | `cmd:tool.linear`, `cmd:mask.update` | |

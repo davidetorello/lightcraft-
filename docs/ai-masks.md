@@ -78,6 +78,34 @@ error, not a silent CPU fallback. Restore the tunnel and retry. Unset
 `LIGHTCRAFT_SAM3_REMOTE` to use the local model again. This offloads segmentation only,
 not RAW development, denoising, or upscaling. The model licence below still applies.
 
+## Subject, Background and People (built-in models)
+
+These three masks use two small segmentation models that are **part of the application**: nothing is
+downloaded and nothing needs setting up.
+
+| Model | Used for | Input | Upstream licence |
+|---|---|---|---|
+| ISNet (DIS), general use | the most salient object | 1024 px | Apache-2.0 |
+| U²-Net, human segmentation | whole people, clothes included | 320 px | Apache-2.0 |
+
+* They run in pure Rust (`crates/salient`, on `tract`), quantized to 8 bits (about 45 MB each; the masks agree with the
+  full-precision ones to 99 %). The desktop app enables cargo feature `salient`; the web build and builds made without
+  `LIGHTCRAFT_MODELS_DIR` don't have it and keep the older heuristics.
+* **Subject** is the general model's selection together with the person model's; **People** is the person model's;
+  **Background** is the inverse of Subject. People restricted to parts (face, hair, …) stay heuristics.
+* The model sees the photo as developed, uncropped and without masks, at 1024 px, and the result is stored with the mask
+  (`MaskShape::Salient { class, seg }`, a `SegMask` over the whole photo). Renders, exports, sidecars and the web build
+  never need the model, and zoomed windows match whole renders. In the app the mask is added at once with the heuristic
+  standing in, the model runs on a thread (a row "Finding the subject" in the activity stack) and the result is swapped in
+  by `Session::segment_poll`; CLI, MCP and tests wait for it.
+* Refine Edges (guided filter) and Invert work as for every mask.
+
+### Building with the models
+
+`tools/build-salient-models.sh <dir>` downloads the upstream ONNX files (pinned by sha256), quantizes them and writes
+`salient-general-int8.onnx` and `salient-person-int8.onnx`. Then build with `LIGHTCRAFT_MODELS_DIR=<dir>`; release
+workflows also set `LIGHTCRAFT_MODELS_REQUIRED=1` so a build never ships without them. The model files are not committed.
+
 ## Getting the model
 
 ### In the app (recommended)

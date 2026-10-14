@@ -24,6 +24,7 @@ fn shape_from(kind: &str, p: &Value, c: &str) -> Result<MaskShape> {
         },
         "sky" => MaskShape::Sky,
         "subject" => MaskShape::Subject,
+        "people" => MaskShape::People { person: 0, parts: Vec::new() },
         "background" => MaskShape::Background,
         "luminanceRange" => MaskShape::LuminanceRange {
             lo: f64_or(p, "lo", 0.6),
@@ -72,6 +73,8 @@ enum Later {
     Clicks(Vec<Point>, Vec<Point>),
     /// Background mode: the Describe selection is computed first; the mask is added when found.
     Text(String),
+    /// Background mode: a model finds this class (`subject`, `background`, `people`) on a thread.
+    Salient(&'static str),
 }
 
 /// Compute the segmentation of a new AI shape (Object with clicks, Prompt) — or, in background
@@ -81,7 +84,22 @@ enum Later {
 fn resolve_ai(s: &mut Session, shape: &mut MaskShape, c: &str) -> Result<Later> {
     let id = s.active().ok_or_else(|| bad(c, "no active photo"))?;
     let background = s.segmenter.background;
-    match shape {
+    if let Some(class) = crate::salient::ready().then(|| crate::salient::class_of(shape)).flatten() {
+        // a model finds it; the heuristic stands in until then (or when the model fails)
+        *shape = MaskShape::Salient { class: class.to_string(), seg: None };
+    }
+    match &mut *shape {
+        MaskShape::Salient { class, seg: None } if !background => {
+            let class = class.clone();
+            let found = s.salient_seg(id, &class).map_err(ai_err)?;
+            if let MaskShape::Salient { seg, .. } = shape {
+                *seg = Some(found);
+            }
+        }
+        MaskShape::Salient { class, seg: None } => {
+            let class = crate::salient::class_of_name(class);
+            return Ok(Later::Salient(class));
+        }
         MaskShape::Object { seg: Some(_), .. } | MaskShape::Prompt { seg: Some(_), .. } => {}
         MaskShape::Object { hint, exclude, .. } if !hint.is_empty() && background => {
             s.segmenter.model_dir().map_err(ai_err)?;
@@ -116,10 +134,18 @@ fn resolve_ai(s: &mut Session, shape: &mut MaskShape, c: &str) -> Result<Later> 
 
 /// Queue what a new AI component (component `comp` of mask `mask`) still needs.
 fn queue_later(s: &mut Session, later: Later, mask: u32, comp: usize, mut out: Value) -> Result<Value> {
-    if let Later::Clicks(hint, exclude) = later {
-        let id = s.active().ok_or_else(|| ai_err("no active photo"))?;
-        s.segment_clicks_later(id, mask, comp, hint, exclude).map_err(ai_err)?;
-        out["pending"] = json!(true);
+    match later {
+        Later::Clicks(hint, exclude) => {
+            let id = s.active().ok_or_else(|| ai_err("no active photo"))?;
+            s.segment_clicks_later(id, mask, comp, hint, exclude).map_err(ai_err)?;
+            out["pending"] = json!(true);
+        }
+        Later::Salient(class) => {
+            let id = s.active().ok_or_else(|| ai_err("no active photo"))?;
+            s.salient_later(id, mask, comp, class).map_err(ai_err)?;
+            out["pending"] = json!(true);
+        }
+        Later::Nothing | Later::Text(_) => {}
     }
     Ok(out)
 }
