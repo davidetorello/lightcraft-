@@ -32,7 +32,7 @@ fn new_users_start_in_the_light_look_and_old_settings_load_unchanged() {
     assert_eq!(old.settings.dark_theme, DarkTheme::Charcoal);
     assert_eq!(old.settings.light_theme, LightTheme::Paper);
     assert!(old.settings.confirm_delete);
-    // and the Charcoal tokens are the ones LightCraft always had
+    // and the Charcoal tokens are the ones Lumen always had
     assert_eq!(crate::theme::Tokens::for_kind(ThemeKind::Charcoal).chrome, crate::theme::Tokens::default().chrome);
 }
 

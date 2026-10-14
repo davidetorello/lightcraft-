@@ -1,4 +1,4 @@
-# LightCraft — the desktop app (`lightcraft`) and the CLI/MCP server (`lightcraft-cli`), built from
+# Lumen — the desktop app (`lightcraft`) and the CLI/MCP server (`lightcraft-cli`), built from
 # this repository:
 #
 #   nix build          # → ./result/bin/lightcraft, ./result/bin/lightcraft-cli
@@ -9,7 +9,7 @@
 #   * `CRAFT_FONTS_DIR` embeds the CJK fonts from storytold/craft-fonts (the `craft-fonts`
 #     flake input); without it everything builds and runs, but Japanese and Chinese text have no glyphs;
 #   * the desktop file, hicolor icons and AppStream metadata are the same files the .deb/.rpm ship
-#     (packaging/linux/), so `apt` and NixOS users see one identical LightCraft;
+#     (packaging/linux/), so `apt` and NixOS users see one identical Lumen;
 #   * `doCheck` runs `cargo test --workspace`, what `cargo xtask ci` runs. `nix build` runs it too;
 #     `pkgs.lightcraft.overrideAttrs { doCheck = false; }` skips it for a faster, build-only install.
 #
@@ -194,7 +194,7 @@ rustPlatform.buildRustPackage {
   meta = {
     description = "Photo library and non-destructive raw developer";
     longDescription = ''
-      LightCraft organises a photo library and develops raw files non-destructively: masks,
+      Lumen organises a photo library and develops raw files non-destructively: masks,
       presets, colour grading, local adjustments and batch export, driven by the same command
       layer as its UI. It ships with lightcraft-cli, a headless renderer, command runner and MCP
       server for AI agents.

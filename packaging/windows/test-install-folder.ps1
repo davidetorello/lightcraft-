@@ -1,7 +1,7 @@
 <#
   Exercise the install-folder searches and actions from lightcraft.wxs with real MSI AppSearch.
   Requires Windows and WiX 5.0.2. No application binaries, administrator rights, or real
-  LightCraft installation are needed: a per-user probe writes only to a unique test registry key.
+  Lumen installation are needed: a per-user probe writes only to a unique test registry key.
   Run: pwsh packaging/windows/test-install-folder.ps1 [-Arch x86|x64|arm64] [-Wix path/to/wix.exe]
 #>
 param(
@@ -53,7 +53,7 @@ try {
   $directory = $source.SelectSingleNode('/w:Wix/w:Package/w:StandardDirectory[w:Directory[@Id="INSTALLFOLDER"]]', $ns).OuterXml
   $probe = @"
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="LightCraft folder search test $id" Manufacturer="LightCraft tests"
+  <Package Name="Lumen folder search test $id" Manufacturer="Lumen tests"
       Version="1.0.0" ProductCode="$product" UpgradeCode="$upgrade" Scope="perUser">
     $($authoring -join "`n")
     $directory
@@ -79,11 +79,11 @@ try {
   [IO.File]::WriteAllText($legacyExe, 'test placeholder; never executed')
   $programFiles = if ($Arch -eq 'x86' -and ${env:ProgramFiles(x86)}) { ${env:ProgramFiles(x86)} } else { $env:ProgramFiles }
   $cases = @(
-    @{ Name = 'fresh'; Expected = (Join-Path $programFiles 'LightCraft') },
+    @{ Name = 'fresh'; Expected = (Join-Path $programFiles 'Lumen') },
     @{ Name = 'legacy-app-paths'; Legacy = $legacyExe; Expected = $legacy },
     # A stale unquoted path with a space used to resolve to the parent of the text before the space.
-    @{ Name = 'legacy-folder-deleted'; Legacy = (Join-Path $root 'deleted app\lightcraft.exe'); Expected = (Join-Path $programFiles 'LightCraft') },
-    @{ Name = 'legacy-exe-deleted'; Legacy = (Join-Path $emptied 'lightcraft.exe'); Expected = (Join-Path $programFiles 'LightCraft') },
+    @{ Name = 'legacy-folder-deleted'; Legacy = (Join-Path $root 'deleted app\lightcraft.exe'); Expected = (Join-Path $programFiles 'Lumen') },
+    @{ Name = 'legacy-exe-deleted'; Legacy = (Join-Path $emptied 'lightcraft.exe'); Expected = (Join-Path $programFiles 'Lumen') },
     @{ Name = 'remembered-folder'; Modern = $true; Expected = $modern },
     @{ Name = 'remembered-beats-legacy'; Modern = $true; Legacy = $legacyExe; Expected = $modern },
     @{ Name = 'explicit-beats-legacy'; Legacy = $legacyExe; Explicit = $true; Expected = $explicit },
@@ -92,7 +92,7 @@ try {
   foreach ($case in $cases) {
     $registry.DeleteSubKeyTree($key, $false)
     if ($case.Legacy) { Set-TestValue 'Software\Microsoft\Windows\CurrentVersion\App Paths\lightcraft.exe' '' $case.Legacy }
-    if ($case.Modern) { Set-TestValue 'Software\LightCraft' 'InstallFolder' "$modern\" }
+    if ($case.Modern) { Set-TestValue 'Software\Lumen' 'InstallFolder' "$modern\" }
     $arguments = @('/i', "`"$msi`"")
     if ($case.Explicit) { $arguments += "INSTALLFOLDER=`"$explicit`"" }
     # Also attempt cleanup if an installation only partially completes.

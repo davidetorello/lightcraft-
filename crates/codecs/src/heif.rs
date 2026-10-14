@@ -22,7 +22,7 @@ const F: Format = Format::Heif;
 
 /// The reason given when this build has no HEIF decoder.
 #[cfg(not(feature = "heif"))]
-pub(crate) const NOT_IN_BUILD: &str = "HEIC/HEIF support isn't included in this build of LightCraft";
+pub(crate) const NOT_IN_BUILD: &str = "HEIC/HEIF support isn't included in this build of Lumen";
 
 #[cfg(not(feature = "heif"))]
 pub(crate) fn decode(_bytes: &[u8], _opts: &DecodeOptions) -> Result<Decoded> {

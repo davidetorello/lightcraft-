@@ -5,14 +5,14 @@
   <id>ai.storyteller.lightcraft</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT OR Apache-2.0</project_license>
-  <name>LightCraft</name>
+  <name>Lumen</name>
   <summary>Organise photos and develop raw files, non-destructively</summary>
   <developer id="ai.storyteller">
     <name>Learning Machines LLC</name>
   </developer>
   <description>
     <p>
-      LightCraft is a photo library and raw developer. Organise photos and develop raw files, non-destructively
+      Lumen is a photo library and raw developer. Organise photos and develop raw files, non-destructively
     </p>
   </description>
   <launchable type="desktop-id">ai.storyteller.lightcraft.desktop</launchable>

@@ -81,9 +81,9 @@ pub fn install_panic_hook() {
             _ => "unknown error".into(),
         };
         let at = info.location().map(|l| format!(" at {}:{}", l.file(), l.line())).unwrap_or_default();
-        log::error!("LightCraft panicked{at}: {msg}");
+        log::error!("Lumen panicked{at}: {msg}");
         show_blocking(&format!(
-            "LightCraft stopped after an internal error:\n{msg}\n\nThe library saved in this browser is kept. Reload the page to continue.\n\
+            "Lumen stopped after an internal error:\n{msg}\n\nThe library saved in this browser is kept. Reload the page to continue.\n\
              If it happens again right away, a photo may be the cause: reload with ?workers=0 or report the error."
         ));
     }));
@@ -210,7 +210,7 @@ pub async fn restore(file: web_sys::File, backend: Backend) -> Result<String, St
     let cd = read_range(&file, cd_offset, cd_offset + cd_size).await?;
     let entries = parse_central(&cd)?;
     if !entries.iter().any(|e| e.name == "library/catalog.snap" || e.name == "library/catalog.log") {
-        return Err("this isn't a LightCraft library backup (no library/catalog files)".into());
+        return Err("this isn't a Lumen library backup (no library/catalog files)".into());
     }
     let dir = restored_dir_name(js_sys::Date::now());
     let mut written = 0usize;
@@ -238,7 +238,7 @@ pub async fn restore(file: web_sys::File, backend: Backend) -> Result<String, St
 /// File ▸ Restore Library from Backup…: confirm, pick the zip, restore, reload.
 pub fn pick_and_restore(backend: Backend, before_reload: impl FnOnce() + 'static) {
     let ok = confirm(
-        "Restore a LightCraft library backup?\n\nThe backup becomes the library in this browser and the page reloads. \
+        "Restore a Lumen library backup?\n\nThe backup becomes the library in this browser and the page reloads. \
          The current library is not deleted: it stays in browser storage.",
     );
     if !ok {

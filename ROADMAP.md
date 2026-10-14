@@ -1,10 +1,10 @@
-# LightCraft roadmap
+# Lumen roadmap
 
 **Stage: alpha** · next: beta, ~14 points and ~340–600 h away
 
 > **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-13 · **Change:** major (compressed ORF decoder: 78 Olympus/OM bodies promoted from preview-only to 🟡) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
-One-page summary of how close LightCraft is to Adobe Lightroom. Agents: read this, then pick work
+One-page summary of how close Lumen is to Adobe Lightroom. Agents: read this, then pick work
 from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are in
 [docs/target-app-parity.md](docs/target-app-parity.md).
 

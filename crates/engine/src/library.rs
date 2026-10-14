@@ -2,7 +2,7 @@
 //! last view state and the preview cache.
 //!
 //! ```text
-//! LightCraft Library/
+//! Lumen Library/
 //!   catalog.snap   catalog.log      (lightcraft-catalog journal)
 //!   presets.json   view.json        (user presets + favourites; last source/sort/selection)
 //!   prefs.json     (library preferences: XMP sidecars, import defaults, cache size, last export)
@@ -30,7 +30,9 @@ use serde::{Deserialize, Serialize};
 use crate::{EngineError, LibrarySource, Result, Selection, Session};
 
 /// Library directory name inside the user's Pictures folder.
-pub const DEFAULT_NAME: &str = "LightCraft Library";
+pub const DEFAULT_NAME: &str = "Lumen Library";
+/// The name the app had before it was called Lumen: a library already under it stays the default.
+pub const LEGACY_NAME: &str = "LightCraft Library";
 
 /// The library folder `path` names. A library is a folder; naming one of its own files
 /// (`catalog.snap`, `catalog.log`, `catalog.lock`) means the folder that holds it. Any other
@@ -58,14 +60,21 @@ pub fn is_library(dir: &Path) -> bool {
     dir.join(lightcraft_catalog::journal::SNAPSHOT).is_file() || dir.join(lightcraft_catalog::journal::LOG).is_file()
 }
 
-/// The default library location: `$LIGHTCRAFT_LIBRARY` if set, else `~/Pictures/LightCraft Library`
-/// (`%USERPROFILE%\Pictures\LightCraft Library` on Windows).
+/// The default library location: `$LIGHTCRAFT_LIBRARY` if set, else `~/Pictures/Lumen Library`
+/// (`%USERPROFILE%\Pictures\Lumen Library` on Windows).
 pub fn default_dir() -> Option<PathBuf> {
     if let Some(p) = std::env::var_os("LIGHTCRAFT_LIBRARY").filter(|p| !p.is_empty()) {
         return Some(PathBuf::from(p));
     }
     let home = if cfg!(windows) { std::env::var_os("USERPROFILE") } else { std::env::var_os("HOME") }?;
-    Some(PathBuf::from(home).join("Pictures").join(DEFAULT_NAME))
+    Some(default_in(&PathBuf::from(home).join("Pictures")))
+}
+
+/// The default library inside `pictures`: the one made under the app's old name when it is there and
+/// no library exists under the current one.
+pub(crate) fn default_in(pictures: &Path) -> PathBuf {
+    let (current, legacy) = (pictures.join(DEFAULT_NAME), pictures.join(LEGACY_NAME));
+    if !is_library(&current) && is_library(&legacy) { legacy } else { current }
 }
 
 pub struct Library {
@@ -217,11 +226,12 @@ fn same_dir(a: &Path, b: &Path) -> bool {
     }
 }
 
-/// This program, for the lock owner note ("LightCraft", "lightcraft-cli").
+/// This program, for the lock owner note ("Lumen", "Lumen CLI").
 fn program_name() -> String {
     let exe = std::env::current_exe().ok().and_then(|p| p.file_stem().map(|s| s.to_string_lossy().to_string()));
     match exe.as_deref() {
-        Some("lightcraft") | None => "LightCraft".into(),
+        Some("lightcraft") | None => "Lumen".into(),
+        Some("lightcraft-cli") => "Lumen CLI".into(),
         Some(other) => other.to_string(),
     }
 }
@@ -246,7 +256,7 @@ impl SettingsLoad {
                 log::error!("library: {name}: {e}");
                 self.blocked.push(name);
                 self.warnings.push(format!(
-                    "{name} couldn't be read ({e}). LightCraft uses the defaults for now and won't overwrite the file; reopen the library to try again."
+                    "{name} couldn't be read ({e}). Lumen uses the defaults for now and won't overwrite the file; reopen the library to try again."
                 ));
                 return None;
             }
@@ -263,7 +273,7 @@ impl SettingsLoad {
             Err(w) => {
                 self.blocked.push(name);
                 self.warnings.push(format!(
-                    "{name} is damaged ({err}) and couldn't be set aside ({w}). LightCraft uses the defaults and won't overwrite the file."
+                    "{name} is damaged ({err}) and couldn't be set aside ({w}). Lumen uses the defaults and won't overwrite the file."
                 ));
             }
         }
@@ -307,7 +317,7 @@ impl Session {
     ///
     /// A Lightroom Classic catalog folder, one of its `.lrdata` / `.lrcat-data` folders or an
     /// `.lrcat` file is refused with [`EngineError::LightroomCatalog`] before anything is
-    /// created ([`crate::lightroom_folder`]); a LightCraft library always opens, whatever else
+    /// created ([`crate::lightroom_folder`]); a Lumen library always opens, whatever else
     /// its folder holds.
     pub fn open_library(&mut self, dir: impl AsRef<Path>, seed_demo: bool) -> Result<&LoadReport> {
         let dir = dir.as_ref().to_path_buf();
@@ -714,7 +724,7 @@ impl Session {
 fn unlocked_warning(lock: Option<&LibraryLock>) -> Option<String> {
     lock.filter(|l| !l.held()).map(|_| {
         "This library could not be locked (its catalog.lock file can't be locked where it is stored, e.g. on some network \
-         shares), so it is open without protection against a second program: use it in one LightCraft app or command at \
+         shares), so it is open without protection against a second program: use it in one Lumen app or command at \
          a time, or changes made in one of them can be lost."
             .to_string()
     })

@@ -75,7 +75,7 @@ jobs:
           $msi = (Get-ChildItem dist/*.msi | Select-Object -First 1).FullName
           $p = Start-Process msiexec.exe -ArgumentList '/i', "`"$msi`"", '/qn', '/l*v', 'install.log' -Wait -PassThru
           if ($p.ExitCode -ne 0) { Get-Content install.log -Tail 60; throw "msiexec /i exited $($p.ExitCode)" }
-          $dir = Join-Path $env:ProgramFiles 'LightCraft'
+          $dir = Join-Path $env:ProgramFiles 'Lumen'
           foreach ($exe in 'lightcraft.exe', 'lightcraft-cli.exe') {
             $path = Join-Path $dir $exe
             if (-not (Test-Path $path)) { throw "$exe not installed in $dir" }

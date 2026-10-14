@@ -937,7 +937,7 @@ mod tests {
     }
 
     /// Adding a face model: the dialog shows the file's terms, the model is installed only once they are
-    /// accepted, and a file LightCraft cannot use only says why.
+    /// accepted, and a file Lumen cannot use only says why.
     #[test]
     fn adding_a_face_model_shows_its_terms_and_installs_only_once_accepted() {
         use crate::state::Dialog;
@@ -1800,7 +1800,7 @@ mod tests {
         h.settle(SETTLE);
         assert!(preview(&mut h).is_none(), "no preview without a watermark");
         if let Some(crate::state::Dialog::Export { opts, .. }) = &mut h.app.ui.dialog {
-            opts.watermark = Some(lightcraft_engine::export::Watermark { text: "© LightCraft".into(), ..Default::default() });
+            opts.watermark = Some(lightcraft_engine::export::Watermark { text: "© Lumen".into(), ..Default::default() });
         }
         let t0 = Instant::now();
         while preview(&mut h).is_none() && t0.elapsed() < Duration::from_secs(30) {
@@ -2684,7 +2684,7 @@ mod tests {
         assert_eq!(h.app.ui.right, crate::state::RightPanel::Edit, "no-op outside tools");
     }
 
-    /// ⌘Q (File → Quit LightCraft) closes the window.
+    /// ⌘Q (File → Quit Lumen) closes the window.
     #[test]
     fn cmd_q_quits() {
         let mut h = demo([900.0, 600.0]);

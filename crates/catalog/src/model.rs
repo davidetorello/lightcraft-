@@ -195,7 +195,7 @@ pub struct Meta {
     pub creator: String,
     pub keywords: Vec<String>,
     /// Face/pet/focus regions read from XMP (MWG-RS), on the upright (EXIF-oriented) photo.
-    /// Removing or resizing one edits the catalog only; LightCraft never writes regions to XMP.
+    /// Removing or resizing one edits the catalog only; Lumen never writes regions to XMP.
     /// Left out of the catalog JSON when empty (most photos), so older catalogs read unchanged.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub regions: Vec<lightcraft_meta::Region>,
@@ -527,7 +527,7 @@ mod edited_tests {
     fn the_process_a_photo_renders_with_is_not_an_edit() {
         use lightcraft_develop::ProcessVersion;
         // a photo on another process than the latest (a V1 photo once a later process is the
-        // latest, or a photo saved by a newer LightCraft)
+        // latest, or a photo saved by a newer Lumen)
         let other = ProcessVersion(ProcessVersion::LATEST.0 + 1);
         let mut p = Photo::new(PhotoId(1), Source::Demo { scene: 0 }, "a.dng", "DNG", 10, 10, "2026-10-01T00:00:00");
         p.kind = MediaKind::Raw;

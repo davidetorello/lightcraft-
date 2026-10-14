@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build and package LightCraft for FreeBSD:
+# Build and package Lumen for FreeBSD:
 #
 #   $DIST/lightcraft-<version>-freebsd-x86_64.tar.gz   a /usr/local-style tree:
 #       lightcraft-<version>-freebsd-x86_64/{bin, share/applications, share/icons, share/mime,
@@ -42,7 +42,7 @@ if [ "$DRY_RUN" = 0 ] && [ "$(uname -s)" != FreeBSD ]; then
 fi
 BASENAME="lightcraft-$VERSION-freebsd-$ARCH"
 
-echo "==> LightCraft $VERSION for FreeBSD $ARCH"
+echo "==> Lumen $VERSION for FreeBSD $ARCH"
 
 # The release VM has 12 GB; full parallelism on the biggest crates runs it out of memory.
 export CARGO_BUILD_JOBS="${CARGO_BUILD_JOBS:-4}"

@@ -1,4 +1,4 @@
-# LightCraft auf Deutsch
+# Lumen auf Deutsch
 
 Wähle **Bearbeiten → Sprache → Deutsch** oder **Einstellungen → Allgemein → Sprache**.
 Die Auswahl gilt sofort und wird für den nächsten Start gespeichert (`language: "de"` in `ui.json`).

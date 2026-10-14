@@ -7,7 +7,7 @@
 //! so no name or path can change what the script does and nothing needs escaping.
 //!
 //! This sends Apple Events to Photos' import command; it does not synthesize keystrokes or clicks.
-//! The first time, macOS asks the user whether LightCraft may control Photos (System Settings ›
+//! The first time, macOS asks the user whether Lumen may control Photos (System Settings ›
 //! Privacy & Security › Automation). A packaged app needs the `com.apple.security.automation.
 //! apple-events` entitlement and an `NSAppleEventsUsageDescription` for that (packaging/macos).
 //!
@@ -38,7 +38,7 @@ use crate::activity::{Activity, Cancel, TaskGuard};
 /// folders are never used. None there: a new top-level album is made. More than one: nothing is
 /// imported (error [`AMBIGUOUS_ALBUM`]).
 pub const SCRIPT: &str = r#"on run argv
-	if (count of argv) < 3 then error "LightCraft: no files to import" number -50
+	if (count of argv) < 3 then error "Lumen: no files to import" number -50
 	set albumName to item 2 of argv
 	set mediaFiles to {}
 	repeat with i from 3 to (count of argv)
@@ -63,7 +63,7 @@ pub const SCRIPT: &str = r#"on run argv
 					end considering
 					if sameName and candidateParent is missing value then set end of topLevel to contents of candidate
 				end repeat
-				if (count of topLevel) > 1 then error "LightCraft: several top-level albums have this name" number 23601
+				if (count of topLevel) > 1 then error "Lumen: several top-level albums have this name" number 23601
 				if (count of topLevel) is 1 then
 					set targetAlbum to item 1 of topLevel
 				else
@@ -115,7 +115,7 @@ pub const KEPT_JOBS: usize = 32;
 /// Why there is no Photos runner in this session.
 pub fn unavailable() -> &'static str {
     if cfg!(target_os = "macos") {
-        "Apple Photos isn't connected in this session (it is in the desktop app and lightcraft-cli)"
+        "Apple Photos isn't connected in this session (it is in the desktop app and the Lumen command-line tool)"
     } else {
         "Apple Photos is only available on macOS"
     }
@@ -173,8 +173,8 @@ fn error_number(stderr: &str) -> Option<i64> {
 /// What to tell the user when osascript failed importing into `album`.
 pub fn explain(out: &Output, album: &str) -> String {
     match error_number(&out.stderr) {
-        Some(-1743 | -1744) => "LightCraft isn't allowed to control Photos. Allow it in System Settings › Privacy & Security › Automation \
-             (turn on Photos under LightCraft, or under your terminal app for lightcraft-cli), then try again."
+        Some(-1743 | -1744) => "Lumen isn't allowed to control Photos. Allow it in System Settings › Privacy & Security › Automation \
+             (turn on Photos under Lumen, or under your terminal app for the command-line tool), then try again."
             .into(),
         Some(-600 | -10810 | -10814) => "Apple Photos couldn't be found or opened on this Mac.".into(),
         Some(-128) => "The import was cancelled in Photos.".into(),
@@ -844,10 +844,12 @@ mod tests {
         let filter = &SCRIPT[lookup..choose];
         assert!(filter.contains("parent of candidate") && filter.contains("candidateParent is missing value"), "{filter}");
         assert!(filter.contains("considering case"), "exact names: {filter}");
-        assert!(filter.contains(&format!(
-            "if (count of topLevel) > 1 then error \"LightCraft: several top-level albums have this name\" number {AMBIGUOUS_ALBUM}"
-        )));
-        let m = explain(&failed(&format!("execution error: LightCraft: several top-level albums have this name ({AMBIGUOUS_ALBUM})")), "Trip");
+        assert!(
+            filter.contains(&format!(
+                "if (count of topLevel) > 1 then error \"Lumen: several top-level albums have this name\" number {AMBIGUOUS_ALBUM}"
+            ))
+        );
+        let m = explain(&failed(&format!("execution error: Lumen: several top-level albums have this name ({AMBIGUOUS_ALBUM})")), "Trip");
         assert!(m.contains("More than one album at the top level of Photos is named “Trip”") && m.contains("nothing was added"), "{m}");
     }
 

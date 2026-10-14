@@ -1,4 +1,4 @@
-//! The ICC profile of the screen showing LightCraft's window (macOS).
+//! The ICC profile of the screen showing Lumen's window (macOS).
 //!
 //! macOS colour-manages windows that say what colour space they draw in. wgpu leaves the window's
 //! Metal layer without one for sRGB content, which Core Animation shows without colour matching, so

@@ -2,29 +2,29 @@
 
 File → Import Lightroom Catalog… opens `.lrcat` directly. Lightroom, Python, DNG conversion
 and a C SQLite runtime are not required. The source database is read-only, including committed
-`-wal` pages; a catalog that changes during the read is rejected. LightCraft owns subsequent edits.
+`-wal` pages; a catalog that changes during the read is rejected. Lumen owns subsequent edits.
 
 File → Open Library… given a Lightroom catalog folder (or an `.lrdata` / `.lrcat-data` folder, or the `.lrcat`)
-doesn't make a LightCraft library there: it offers this import instead, with the catalog found
+doesn't make a Lumen library there: it offers this import instead, with the catalog found
 (`crates/engine/src/lightroom_folder.rs`, issue #891). `lightcraft-cli --library` refuses those places too.
 
 Equivalent commands:
 
 ```text
-lightcraft-cli run --library "LightCraft Library" library.inspectLightroom path="Lightroom Catalog.lrcat"
-lightcraft-cli run --library "LightCraft Library" library.importLightroom path="Lightroom Catalog.lrcat"
+lightcraft-cli run --library "Lumen Library" library.inspectLightroom path="Lightroom Catalog.lrcat"
+lightcraft-cli run --library "Lumen Library" library.importLightroom path="Lightroom Catalog.lrcat"
 ```
 
 Original files are referenced in place. Ratings, picks/rejects, color labels, XMP metadata,
 hierarchical keywords, regular collections/collection sets, virtual copies and mapped develop
-settings are imported. Missing originals remain catalogued for relinking. Existing LightCraft
+settings are imported. Missing originals remain catalogued for relinking. Existing Lumen
 edits are preserved by default; `updateExisting=true` explicitly replaces them. Persistent import
 identity prevents reimport from duplicating virtual copies and collections. One undo step reverses
 catalog changes; any saved recovery archives remain available.
 
 Before changing records, the importer attempts to save source image records, decoded XMP,
 verbatim develop settings, history, snapshots and collection content to compressed
-`Interop/lightroom-import-N.lca` recovery archives in the LightCraft library. Archiving is
+`Interop/lightroom-import-N.lca` recovery archives in the Lumen library. Archiving is
 best-effort: a size limit or write failure produces a warning and does not prevent photo import.
 Unchanged source data reuses its existing archive. Opaque SQL BLOBs are skipped. Each archive is
 capped at 32 MiB (uncompressed and on disk), with at most eight archives and 128 MiB total
@@ -43,11 +43,11 @@ Develop settings reuse the existing XMP/preset mapper. Supported sliders, curves
 mask structures remain editable, but this is approximate rendering: camera profiles, Adobe AI
 models, some masking/retouch fields and process-version algorithms are not reproduced. Unmapped
 fields are reported. Lightroom's `ProcessVersion` is not mapped: newly imported photos are on
-LightCraft's latest rendering process, and photos already in the library keep theirs
+Lumen's latest rendering process, and photos already in the library keep theirs
 ([process-versions.md](process-versions.md)). When a recovery archive is saved, it retains source settings/history/snapshots
 and original smart-collection rules. Smart collections become regular albums with current
-membership. Archived history and snapshots are source data, not native LightCraft history yet.
-A Custom white balance on a raw LightCraft develops relative to its as-shot look (ARW, NEF, RW2,
+membership. Archived history and snapshots are source data, not native Lumen history yet.
+A Custom white balance on a raw Lumen develops relative to its as-shot look (ARW, NEF, RW2,
 RAF, CR3, CR2, PEF, SRW; Lightroom names them all `RAW`) can't be taken as Kelvin: the catalog keeps no
 as-shot white for Custom photos, so the photo stays As Shot and `Temperature, Tint` are reported
 (issue #510; a DNG keeps the Kelvin value, and an XMP packet with `crs:AsShotTemperature` is
@@ -58,7 +58,7 @@ read from the file, not from the Lightroom catalog; a missing file is treated as
 until Reload reads it.
 Lightroom's `-999999` deferred-adjustment sentinel is omitted from both catalog and XMP mappings;
 it is reported, included in any saved archive, and never clamped into a real slider value. Deferred Adobe Auto Tone
-is not evaluated by the importer; LightCraft's Auto control remains available after migration.
+is not evaluated by the importer; Lumen's Auto control remains available after migration.
 
 Native desktop inspection/import runs on a cancellable background worker with progress. Only
 prepared catalog operations commit on the owner thread; archive index writing stays on a worker.
@@ -75,4 +75,4 @@ path isn't a folder on this computer (a catalog copied from another machine), th
 the path relative to the catalog that Lightroom records for root folders on the catalog's volume
 (`relativePathFromCatalog`), when that is a folder, and reports the remapping as a warning. Copying
 a project folder with its catalog inside it therefore keeps its originals linked. Other moved
-originals stay missing; use LightCraft's missing-photo relinking tools to update their paths.
+originals stay missing; use Lumen's missing-photo relinking tools to update their paths.

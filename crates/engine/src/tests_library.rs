@@ -675,3 +675,19 @@ fn an_album_filter_loop_is_refused() {
     assert!(r.is_err_and(|e| e.to_string().contains("include itself")), "refused");
     assert_eq!(s.catalog.album(lightcraft_catalog::AlbumId(a)).unwrap().smart.as_ref().and_then(|f| f.album), None);
 }
+
+#[test]
+fn a_library_under_the_old_app_name_stays_the_default() {
+    use crate::library::{DEFAULT_NAME, LEGACY_NAME, default_in};
+    let pictures = temp_dir("legacy-default");
+    std::fs::create_dir_all(pictures.join(LEGACY_NAME)).unwrap();
+    // an empty old folder is not a library: the new name is used
+    assert_eq!(default_in(&pictures), pictures.join(DEFAULT_NAME));
+    std::fs::write(pictures.join(LEGACY_NAME).join(lightcraft_catalog::journal::LOG), b"").unwrap();
+    assert_eq!(default_in(&pictures), pictures.join(LEGACY_NAME));
+    // once there is a library under the new name, it wins
+    std::fs::create_dir_all(pictures.join(DEFAULT_NAME)).unwrap();
+    std::fs::write(pictures.join(DEFAULT_NAME).join(lightcraft_catalog::journal::LOG), b"").unwrap();
+    assert_eq!(default_in(&pictures), pictures.join(DEFAULT_NAME));
+    let _ = std::fs::remove_dir_all(&pictures);
+}

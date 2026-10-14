@@ -1,8 +1,8 @@
-# Target-app parity: LightCraft vs Adobe Lightroom
+# Target-app parity: Lumen vs Adobe Lightroom
 
 > **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-11 · **Change:** minor (EOS R5 Mark II CR3 verified: RAW decoding 76% → 77%; headline numbers unchanged) · **Target:** Adobe Lightroom Classic 15.5 (August 2026) and Lightroom 9.6 (desktop)
 
-The authoritative assessment of how close LightCraft is to Lightroom. The row-by-row checklist is
+The authoritative assessment of how close Lumen is to Lightroom. The row-by-row checklist is
 [parity-checklist.md](parity-checklist.md); the ranked work list is [gaps.md](gaps.md); deep areas
 have their own documents: [raw-parity.md](raw-parity.md), [file-format-parity.md](file-format-parity.md),
 [ui-parity.md](ui-parity.md), [hardware-parity.md](hardware-parity.md),
@@ -25,14 +25,14 @@ have their own documents: [raw-parity.md](raw-parity.md), [file-format-parity.md
 
 - **Target:** Lightroom Classic 15.5 (August 2026; latest per Adobe's release notes) for the
   library, modules and depth; Lightroom 9.6 (the cloud-library desktop app), installed on the
-  owner's Mac at `/Applications/Adobe Lightroom CC`, for the interface LightCraft's layout follows.
+  owner's Mac at `/Applications/Adobe Lightroom CC`, for the interface Lumen's layout follows.
   Both share the Camera Raw engine.
 - **Installed bundle, inspected by listing only** (the clean-room rule forbids reading contents):
   `Info.plist` document types (31 raw extensions, jpg, tif, heic, xmp, catalog bundles); 16
   `.lproj` localizations; `CameraProfiles` (1,500 Adobe Standard and 395 Camera Matching model
   names); `LensProfiles` (3,635 files, 56 makers); `ModelZoo` (37 AI model names). The app was not
   launched.
-- **LightCraft side:** origin/main at `b70ae174` (2026-10-10): code counts (226 engine commands, 143
+- **Lumen side:** origin/main at `b70ae174` (2026-10-10): code counts (226 engine commands, 143
   UI commands, 122 + 10 develop controls, 2,561 tests, ≈ 202,000 Rust lines in 24 crates + 3 apps),
   the checklist rows, raw corpus manifests, locale catalogs, CI workflows, docs.
 - **Behaviour and output** were not compared against a running Lightroom in this pass; the
@@ -88,7 +88,7 @@ portrait, skin and object selection with refinement, depth estimation, denoise, 
 reflections removal, distraction / people detection, culling scores (eyes open, blur, aesthetics) and
 search embeddings; generative remove runs in Adobe's cloud.
 
-| Feature | LightCraft | Status |
+| Feature | Lumen | Status |
 |---|---|---|
 | Subject / Sky / Background masks | classical heuristics; the file's own DNG semantic mattes | 🟡 |
 | People (faces, body, hair, skin…) and Landscape masks | — | ⬜ |
@@ -141,7 +141,7 @@ valued from the model-by-model measurement in [raw-parity.md](raw-parity.md):
 | Ecosystem / plug-ins | 2% | 15% |
 | **Weighted sum** | 100% | **60.7% ≈ 61%** (range 56–66%) |
 
-Mainstream comes out lower than full: its scope is the raw-develop core, where LightCraft is weakest
+Mainstream comes out lower than full: its scope is the raw-develop core, where Lumen is weakest
 (camera colour, CR3 coverage), and its discounts are multiplicative, while the full sum is lifted by
 strong library, presets, UI and format dimensions.
 

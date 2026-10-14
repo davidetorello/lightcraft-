@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build and package LightCraft for Linux (<arch> is x86_64 or aarch64, or riscv64 when cross-compiling):
+# Build and package Lumen for Linux (<arch> is x86_64 or aarch64, or riscv64 when cross-compiling):
 #
 #   $DIST/lightcraft-<version>-linux-<arch>.AppImage  any distro with glibc >= the build host's
 #   $DIST/lightcraft-<version>-linux-<arch>.AppImage.zsync  delta updates (needs zsyncmake)
@@ -39,10 +39,10 @@ case "$ARCH" in
   aarch64 | arm64) ARCH=aarch64; DEB_ARCH=arm64 ;;
   *) echo "unsupported architecture $ARCH" >&2; exit 2 ;;
 esac
-export LIGHTCRAFT_MAINTAINER="${LIGHTCRAFT_MAINTAINER:-LightCraft maintainers <lightcraft@storyteller.ai>}"
+export LIGHTCRAFT_MAINTAINER="${LIGHTCRAFT_MAINTAINER:-Lumen maintainers <lightcraft@storyteller.ai>}"
 BASENAME="lightcraft-$VERSION-linux-$ARCH"
 
-echo "==> LightCraft $VERSION for Linux $ARCH ($FORMATS)"
+echo "==> Lumen $VERSION for Linux $ARCH ($FORMATS)"
 
 if [ "$SKIP_BUILD" = 0 ]; then
   (cd "$ROOT" && cargo build --release --locked -p lightcraft -p lightcraft-cli --features lightcraft/heif,lightcraft-cli/heif \
@@ -98,7 +98,7 @@ fi
 
 # ---- AppImage -----------------------------------------------------------------------------------
 if has appimage; then
-  APPDIR="$WORK/LightCraft.AppDir"
+  APPDIR="$WORK/Lumen.AppDir"
   cp -R "$STAGE" "$APPDIR"
   mv "$APPDIR/usr/share/doc" "$WORK/doc-unused"
   ln -s usr/bin/lightcraft "$APPDIR/AppRun"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the two segmentation models LightCraft embeds (see docs/ai-masks.md):
+# Build the two segmentation models Lumen embeds (see docs/ai-masks.md):
 # download the upstream ONNX files (Apache-2.0), check their sha256, quantize them to 8 bits.
 # Usage: tools/build-salient-models.sh <output-dir>   then   LIGHTCRAFT_MODELS_DIR=<output-dir> cargo build ...
 # Needs python3 and network access (pip installs onnx and onnxruntime into a throwaway virtualenv).

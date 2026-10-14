@@ -1,4 +1,4 @@
-# Gaps: where LightCraft falls short of Lightroom
+# Gaps: where Lumen falls short of Lightroom
 
 > **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-14 · **Change:** minor (lens profiles no longer dropped at the wide end of strong digital-correction zooms; EOS R6 Mark II CR3 decodes real files) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 

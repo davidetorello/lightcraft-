@@ -13,7 +13,7 @@ from PIL import Image
 from safetensors.torch import save_file
 from transformers import Sam3TrackerModel, Sam3Model, CLIPTokenizer
 
-MODEL = os.environ.get("LIGHTCRAFT_SAM3_DIR", os.path.expanduser("~/Library/Application Support/LightCraft/models/sam3"))
+MODEL = os.environ.get("LIGHTCRAFT_SAM3_DIR", os.path.expanduser("~/Library/Application Support/Lumen/models/sam3"))
 img_path, out_path = sys.argv[1], sys.argv[2]
 torch.set_grad_enabled(False)
 

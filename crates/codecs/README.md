@@ -1,6 +1,6 @@
 # lightcraft-codecs (L1)
 
-Standard image formats for LightCraft: format sniffing, decoding to **linear light** with colour
+Standard image formats for Lumen: format sniffing, decoding to **linear light** with colour
 management, fast thumbnails, and encoders with metadata embedding. Pure Rust, no C dependencies,
 builds for `wasm32-unknown-unknown`.
 

@@ -1,7 +1,7 @@
 //! AI masks: Object (clicks) and Describe (text) selections computed with SAM 3
 //! (`lightcraft-segment`, cargo feature `sam`; the desktop app enables it).
 //!
-//! **Nothing requires the model.** It is not part of LightCraft (SAM License); the user
+//! **Nothing requires the model.** It is not part of Lumen (SAM License); the user
 //! downloads it when they first use an AI mask and agree to (`segment.model.download`), or
 //! puts the files in the model folder themselves. Without it, AI mask requests fail with a
 //! clear "not installed" error; renders, exports and every other feature never touch it
@@ -32,7 +32,7 @@ use crate::Session;
 pub const INPUT_EDGE: usize = 1008;
 /// Download size of the model (`model.safetensors`; the tokenizer files add ~2 MB).
 pub const MODEL_BYTES: u64 = 3_439_938_512;
-/// The model's licence (not LightCraft's): shown before downloading.
+/// The model's licence (not Lumen's): shown before downloading.
 pub const LICENSE_NAME: &str = "SAM License (Meta)";
 pub const LICENSE_URL: &str = "https://github.com/facebookresearch/sam3/blob/main/LICENSE";
 /// How errors about a missing model start (the UI offers the download on it).
@@ -251,7 +251,7 @@ impl Segmenter {
             return Err(format!("{NOT_INSTALLED} yet: it is downloading ({pct} %)."));
         }
         Err(format!(
-            "{NOT_INSTALLED}. Download it (about {:.1} GB, {LICENSE_NAME}) when LightCraft offers it, with `segment.model.download {{\"acknowledged\": true}}`, or put model.safetensors, vocab.json and merges.txt in {}.",
+            "{NOT_INSTALLED}. Download it (about {:.1} GB, {LICENSE_NAME}) when Lumen offers it, with `segment.model.download {{\"acknowledged\": true}}`, or put model.safetensors, vocab.json and merges.txt in {}.",
             MODEL_BYTES as f64 / 1e9,
             dir.display()
         ))

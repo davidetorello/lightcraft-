@@ -1,10 +1,10 @@
 # Display (monitor) profiles
 
-LightCraft can show photos through the monitor's ICC profile, so colours are right on wide-gamut and calibrated
+Lumen can show photos through the monitor's ICC profile, so colours are right on wide-gamut and calibrated
 displays. Without one, previews are sRGB, which a wide-gamut panel shows oversaturated.
 
 **macOS uses the screen's own profile** (the one System Settings ▸ Displays assigns) while none is chosen. macOS doesn't
-colour-manage LightCraft's window (wgpu leaves its Metal layer without a colour space, which Core Animation shows
+colour-manage Lumen's window (wgpu leaves its Metal layer without a colour space, which Core Animation shows
 unmatched), so on a P3 screen previews used to look more saturated than the exported files in Preview or Photos (issue
 #787). The profile is read again about once a second, so moving the window to another screen is followed.
 

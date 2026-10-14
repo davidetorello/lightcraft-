@@ -512,7 +512,7 @@ pub fn camera_profile_name(props: &Props) -> Option<&str> {
 }
 
 /// Whether an XMP packet contains a saved Lightroom Upright matrix. Lightroom's matrix uses a
-/// coordinate convention that LightCraft does not currently import.
+/// coordinate convention that Lumen does not currently import.
 pub fn has_saved_upright_transform(props: &Props) -> bool {
     props.keys().any(|key| {
         key.strip_prefix("crs:").is_some_and(|name| {
@@ -754,7 +754,7 @@ mod tests {
         assert_eq!(Target::for_photo(&p), Target::RawAbsolute);
     }
 
-    /// Lightroom writes `crs:Temperature` as Kelvin for a raw whose camera LightCraft has matrices for: the value
+    /// Lightroom writes `crs:Temperature` as Kelvin for a raw whose camera Lumen has matrices for: the value
     /// is read as written, marked Kelvin, and the as-shot reference is not needed (issue #730); the same packet on
     /// a raw without matrices still takes the #510 shift.
     #[test]

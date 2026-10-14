@@ -1,4 +1,4 @@
-//! The LightCraft library (catalog).
+//! The Lumen library (catalog).
 //!
 //! State changes only through [`Op`]s. [`Catalog::apply`] returns the inverse op, which gives:
 //! - **persistence**: ops are appended to a log (JSON lines) and replayed on load after the last
@@ -59,9 +59,9 @@ pub enum CatalogError {
     Corrupt(String),
     #[error("catalog storage: {0}")]
     Io(String),
-    /// The library was written by a newer LightCraft (a newer catalog format, or a change this
+    /// The library was written by a newer Lumen (a newer catalog format, or a change this
     /// version doesn't know). Nothing was read into the session and nothing was modified.
-    #[error("this library was written by a newer version of LightCraft ({0}); update LightCraft to open it. The library was left unchanged.")]
+    #[error("this library was written by a newer version of Lumen ({0}); update Lumen to open it. The library was left unchanged.")]
     Newer(String),
 }
 

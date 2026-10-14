@@ -1,4 +1,4 @@
-//! M0.9 acceptance: drive LightCraft over MCP (stdio framing), set exposure and render an image.
+//! M0.9 acceptance: drive Lumen over MCP (stdio framing), set exposure and render an image.
 //! Runs against the headless backend directly and through the TCP control-channel transport
 //! (`Remote`) to a stand-in control server.
 

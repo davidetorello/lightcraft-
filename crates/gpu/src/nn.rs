@@ -72,7 +72,7 @@ fn dev() -> Result<&'static Dev, String> {
 }
 
 /// Why nothing runs on the GPU once [`crate::begin_shutdown`] was called.
-const CLOSING: &str = "LightCraft is closing";
+const CLOSING: &str = "Lumen is closing";
 
 fn create_device() -> Result<Dev, String> {
     let Some(backends) = crate::backend::compute_backends() else { return Err("disabled by LIGHTCRAFT_GPU_BACKEND=off".into()) };

@@ -339,7 +339,7 @@ mod tests {
         let partial = apple_photos_note(&json!({"imported": 1, "requested": 2, "warning": "Photos added 1 of 2 files"}));
         assert_eq!(partial, "1 added to Apple Photos (Photos added 1 of 2 files)");
         let denied = apple_photos_note(
-            &json!({"error": "LightCraft isn't allowed to control Photos. Allow it in System Settings › Privacy & Security › Automation"}),
+            &json!({"error": "Lumen isn't allowed to control Photos. Allow it in System Settings › Privacy & Security › Automation"}),
         );
         assert!(denied.starts_with("not added to Apple Photos: ") && denied.contains("Automation"), "{denied}");
         assert_eq!(apple_photos_note(&json!({"skipped": "the export was cancelled"})), "not added to Apple Photos (cancelled)");

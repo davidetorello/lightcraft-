@@ -1,4 +1,4 @@
-//! The LightCraft develop pipeline on the GPU (wgpu compute, WGSL kernels).
+//! The Lumen develop pipeline on the GPU (wgpu compute, WGSL kernels).
 //!
 //! The CPU pipeline (`lightcraft-pipeline`) is the reference: every kernel here is a port of a CPU
 //! stage, both read the same resolved parameters ([`lightcraft_pipeline::Plan`],
@@ -84,7 +84,7 @@ pub fn unavailable_reason() -> Option<String> {
         return Some("disabled by the GPU rendering preference (app.gpu)".into());
     }
     if shutting_down() {
-        return Some("LightCraft is closing".into());
+        return Some("Lumen is closing".into());
     }
     if BROKEN.load(Ordering::Relaxed) {
         let r = BROKEN_REASON.lock().unwrap_or_else(|e| e.into_inner()).clone().unwrap_or_else(|| "device error".into());

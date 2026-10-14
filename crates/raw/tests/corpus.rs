@@ -922,7 +922,7 @@ fn verify_sensor_arrays(cases: &[(&str, usize, usize, u64, u64)]) -> usize {
     seen
 }
 
-/// Regression values from LightCraft's decoder with the derived companding curve; the 12-bit codes before the curve
+/// Regression values from Lumen's decoder with the derived companding curve; the 12-bit codes before the curve
 /// were verified against the black-box oracle in Phase 0 (docs/arw6-compression.md). The files are CC0 from RawDB, one
 /// per geometry and compression mode.
 #[test]

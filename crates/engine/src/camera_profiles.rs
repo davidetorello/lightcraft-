@@ -22,7 +22,7 @@ const VERSION: u32 = 1;
 /// Largest profile file read (a 5 × 72 × 5 table is ~60 KB of JSON).
 const MAX_FILE: u64 = 4 << 20;
 
-/// Profiles built into LightCraft (`assets/camera-profiles/`, see `assets/ATTRIBUTION.md`):
+/// Profiles built into Lumen (`assets/camera-profiles/`, see `assets/ATTRIBUTION.md`):
 /// `(model, JSON)`.
 pub const BUNDLED: &[(&str, &str)] = &[
     ("ILCE-7CR", include_str!("../../../assets/camera-profiles/ILCE-7CR.json")),
@@ -66,7 +66,7 @@ impl CameraProfile {
     }
 }
 
-/// LightCraft's configuration folder (settings, GPU marker, camera profiles); one helper for the app.
+/// Lumen's configuration folder (settings, GPU marker, camera profiles); one helper for the app.
 pub use crate::config::config_dir;
 
 /// Where camera profiles are read from and written to.

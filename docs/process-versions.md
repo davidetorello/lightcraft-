@@ -2,12 +2,12 @@
 
 Every photo's develop settings record the **rendering process** they are interpreted by
 (`DevelopSettings::process`, a `ProcessVersion` in `crates/develop/src/settings.rs`). Lightroom calls
-this the process version. It lets the look of LightCraft improve (a new default tone curve, issue #146;
+this the process version. It lets the look of Lumen improve (a new default tone curve, issue #146;
 stronger Light sliders, issue #196) without changing a single photo someone has already edited.
 
 | Process | What it changes |
 |---|---|
-| **V1** | LightCraft's rendering from before process versions existed. Frozen. |
+| **V1** | Lumen's rendering from before process versions existed. Frozen. |
 | **V2** (the latest) | Highlights and Shadows keep fine detail (issue #632): their base layer (`local::tone_base`) is the edge-aware filter of a separable median of log luminance (radius 0.15 % of the long edge, at most 24 px, `local::BASE_DETAIL`) instead of log luminance itself, so twigs, lines and texture take their surroundings' shift and keep their contrast; region edges stay sharp. CPU (`local::prepare`) and GPU prepare branch on `local::tone_base_detail` (0 = no median under V1); the base plane is cached per process (`local::BaseKey`). Renders without Highlights or Shadows (global or local) are the same as V1's. Tone map unchanged. |
 
 ## The rule
@@ -53,15 +53,15 @@ stronger Light sliders, issue #196) without changing a single photo someone has 
 
 **Copy, paste, sync and presets** never carry the process: it is in no settings group, so the photos
 they change keep their own and interpret the pasted values with it. (Lightroom offers the process
-version as a separate checkbox when syncing; LightCraft's groups are coarser and keep it out.) Partial
+version as a separate checkbox when syncing; Lumen's groups are coarser and keep it out.) Partial
 settings JSON that names `process` itself (`develop.merge`, a hand-written preset) sets it.
 
-**Lightroom edits** are re-interpreted by LightCraft's mapper (`crates/engine/src/crs.rs`), which is
+**Lightroom edits** are re-interpreted by Lumen's mapper (`crates/engine/src/crs.rs`), which is
 written against the current rendering. `crs:ProcessVersion` numbers Adobe's renderer, not ours, and is
-ignored; a photo imported with Lightroom edits is on LightCraft's latest process, and an existing
-LightCraft photo that receives them keeps its own.
+ignored; a photo imported with Lightroom edits is on Lumen's latest process, and an existing
+Lumen photo that receives them keeps its own.
 
-**A number this build doesn't know** (a library or sidecar written by a newer LightCraft) loads, is
+**A number this build doesn't know** (a library or sidecar written by a newer Lumen) loads, is
 kept when saved, and renders with the newest process this build has. Update to Current Process never
 moves a photo to an older process; Reset does move it to this build's latest.
 

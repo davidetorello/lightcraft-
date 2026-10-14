@@ -1,4 +1,4 @@
-# Hosting LightCraft for the web
+# Hosting Lumen for the web
 
 > **Experimental.** The browser version keeps its library (catalog and imported photos) in the
 > browser's own storage for the site. Browsers may clear that storage (site data cleared,
@@ -76,7 +76,7 @@ One tab at a time can have the library open; a second tab shows a message instea
 ```html
 <iframe
   src="https://example.com/lightcraft/"
-  title="LightCraft image editor"
+  title="Lumen image editor"
   style="width: 100%; height: 720px; border: 0;"
   allow="fullscreen; clipboard-read; clipboard-write"
   allowfullscreen>
@@ -97,7 +97,7 @@ One tab at a time can have the library open; a second tab shows a message instea
 
 ## Renderer and URL options
 
-LightCraft draws its UI with WebGL2 (eframe's `glow` backend) and renders photos on the CPU in
+Lumen draws its UI with WebGL2 (eframe's `glow` backend) and renders photos on the CPU in
 Web Workers. A browser without WebGL2 gets a message in place of the app. URL options, also on
 an iframe `src`:
 

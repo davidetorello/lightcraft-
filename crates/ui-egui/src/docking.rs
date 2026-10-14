@@ -379,7 +379,7 @@ fn command_impl(app: &mut crate::LightcraftApp, reset: bool, params: &Value, ren
     let mut workspace = app.ui.docking.clone().unwrap_or_else(|| from_ui(app));
     if reset {
         workspace = Workspace::default();
-        // The usual LightCraft starting workspace shows its current tool beside the photo.
+        // The usual Lumen starting workspace shows its current tool beside the photo.
         workspace.set_visible(Panel::Library, false)?;
         workspace.set_visible(Panel::Presets, false)?;
     } else {

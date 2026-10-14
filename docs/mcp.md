@@ -1,6 +1,6 @@
-# LightCraft MCP server
+# Lumen MCP server
 
-`lightcraft-cli mcp` exposes LightCraft to AI agents through the
+`lightcraft-cli mcp` exposes Lumen to AI agents through the
 [Model Context Protocol](https://modelcontextprotocol.io): newline-delimited JSON-RPC 2.0 over
 stdio (protocol revision `2025-06-18`; `2025-03-26` and `2024-11-05` clients are accepted). The
 server lives in `crates/mcp` (`lightcraft-mcp`, layer L5) and is hand-written: no async runtime,
@@ -13,11 +13,11 @@ It runs in one of two modes:
 | **Headless** (default) | `lightcraft-cli mcp [--demo] [FILES/FOLDERS…]` | An in-process engine `Session`. Develop, render and export without a window. |
 | **Connect** | `lightcraft-cli mcp --connect [127.0.0.1:7980]` | A running desktop app started with `lightcraft --control 7980`, through its loopback JSON-lines control channel ([control-protocol.md](control-protocol.md)). Adds the UI tools (screenshot, clicks, keys, pointer gestures). |
 
-Options: `--library DIR` opens (or creates) a persistent LightCraft library — the same crash-safe
-format the desktop app uses (`~/Pictures/LightCraft Library` by default there) — so ratings, edits and albums
+Options: `--library DIR` opens (or creates) a persistent Lumen library — the same crash-safe
+format the desktop app uses (`~/Pictures/Lumen Library` by default there) — so ratings, edits and albums
 survive between sessions (with `--demo`, a new library is seeded with the demo photos). A library
 is open in one program at a time (`catalog.lock` in the library folder): while the desktop app has
-it open, `--library` on the same folder fails with "This library is already open in LightCraft
+it open, `--library` on the same folder fails with "This library is already open in Lumen
 (process N …)" — use connect mode to work with the running app instead;
 `--demo` starts the headless session with the procedurally generated demo library;
 `--compact` lists only the helper tools (see below). In connect mode the server starts even when
@@ -65,7 +65,7 @@ Register the CLI's stdio server with Codex using its **absolute** installed path
 codex mcp add lightcraft -- "/absolute/path/lightcraft-cli" mcp --library "/absolute/path/library"
 
 # Live desktop: start the app on the matching loopback port first.
-"/absolute/path/LightCraft.app/Contents/MacOS/LightCraft" --library "/absolute/path/library" --control 7980
+"/absolute/path/Lumen.app/Contents/MacOS/Lumen" --library "/absolute/path/library" --control 7980
 codex mcp add lightcraft-app -- "/absolute/path/lightcraft-cli" mcp --connect 127.0.0.1:7980
 ```
 
@@ -88,13 +88,13 @@ The release packages ship `lightcraft-cli` alongside the desktop app, so no buil
 
 | Install | CLI |
 |---|---|
-| Windows (MSI) | `C:\Program Files\LightCraft\lightcraft-cli.exe` by default (wherever you installed it otherwise), not on `PATH` |
+| Windows (MSI) | `C:\Program Files\Lumen\lightcraft-cli.exe` by default (wherever you installed it otherwise), not on `PATH` |
 | Linux (deb, rpm) | `/usr/bin/lightcraft-cli` |
 | macOS | the separate `lightcraft-cli-<version>-macos-<arch>.zip` release asset (the `.app` holds only the desktop app) |
 
 ```sh
 # Windows, default install folder
-claude mcp add lightcraft -- "C:\Program Files\LightCraft\lightcraft-cli.exe" mcp
+claude mcp add lightcraft -- "C:\Program Files\Lumen\lightcraft-cli.exe" mcp
 # Linux, or macOS with the CLI unzipped onto PATH
 claude mcp add lightcraft -- lightcraft-cli mcp
 ```
@@ -164,7 +164,7 @@ per-request `_meta` receive `resultType: complete` and list/read cache hints; re
 | `select_photos {ids, active?, mode?}` | Set the selection / active photo. Every id (and `active`) must be in the library: an unknown id is a tool error (`no such photo 9999`) and the selection and active photo are left as they were |
 | `list_controls {section?}` | Every develop slider: id (`light.exposure`…), range, default, current value |
 | `get_develop {id?}` | Full develop-settings JSON, with `process`: the rendering process the photo is on ([process-versions.md](process-versions.md)) |
-| `set_develop {id?, values?, settings?, label?}` | `values`: `{controlId: number}`; `settings`: partial develop JSON deep-merged. Undoable. A `crop.angle` value turns the crop as `crop.straighten` does: kept if it still fits, else shrunk to the largest crop of its aspect inside the photo (`settings` is merged as given, unfitted). White balance: `values` with `wb.temp` / `wb.tint` is Kelvin on raws with colour matrices (DNG, and cameras LightCraft has matrices for) and relative (6500 = as shot) elsewhere; a `settings.wb` with `temp` / `tint` and no `"scale": "kelvin"` is read on the relative scale on every raw (see [control-protocol.md](control-protocol.md)) |
+| `set_develop {id?, values?, settings?, label?}` | `values`: `{controlId: number}`; `settings`: partial develop JSON deep-merged. Undoable. A `crop.angle` value turns the crop as `crop.straighten` does: kept if it still fits, else shrunk to the largest crop of its aspect inside the photo (`settings` is merged as given, unfitted). White balance: `values` with `wb.temp` / `wb.tint` is Kelvin on raws with colour matrices (DNG, and cameras Lumen has matrices for) and relative (6500 = as shot) elsewhere; a `settings.wb` with `temp` / `tint` and no `"scale": "kelvin"` is read on the relative scale on every raw (see [control-protocol.md](control-protocol.md)) |
 | `apply_preset {preset, amount?, ids?}` | Apply a preset (ids from `cmd_presets_list`) |
 | `crop {id?, rect?, angle?, reset?}` | Normalized crop rect `[x0,y0,x1,y1]` and straighten angle; at least one of `rect`, `angle`, `reset: true`. The crop always ends inside the photo: an `angle` alone keeps the crop if it still fits, else shrinks it to the largest of its aspect that does |
 | `render_photo {id?, size?, format?, path?}` | Render with current settings → **image content** (PNG, or JPEG with `format: "jpeg"`), long edge `size` (default 1024) |
@@ -188,7 +188,7 @@ In headless mode these return a tool error explaining how to start the app.
 
 ### One tool per command
 
-Everything is a command in LightCraft, so `tools/list` also contains one tool per entry of the
+Everything is a command in Lumen, so `tools/list` also contains one tool per entry of the
 command registry (engine commands, plus the app's UI commands such as `view.detail` when
 connected): the id with `.` replaced by `_` and a `cmd_` prefix — `photo.rate` → `cmd_photo_rate`,
 `develop.set` → `cmd_develop_set`, `edit.undo` → `cmd_edit_undo`. Arguments are the command's
@@ -226,7 +226,7 @@ standard error codes (-32700 parse, -32600 invalid request, -32601 method not fo
 invalid params, -32002 resource not found).
 
 With `--library`, a command whose change can't be written to disk (disk full, …) is an error too:
-`saved in memory but not written to disk: <reason>; LightCraft will retry` — the change is applied in the session and
+`saved in memory but not written to disk: <reason>; Lumen will retry` — the change is applied in the session and
 written by the next successful save (see [control-protocol.md](control-protocol.md#when-the-library-cant-be-saved)).
 
 ## One-shot commands: `lightcraft-cli run`
@@ -281,8 +281,8 @@ album?, wait?}` does the same for files already on disk (`wait` defaults to true
 app, which refuses `wait: true`; with `wait: false` headless, the server waits for the import before it exits at end of input). One import
 runs at a time, and an export adding to Photos reserves it before it writes: another is refused, naming the
 job in the way. On other platforms `addToPhotos: true` is refused before anything is written, and
-`export.addToPhotos` is disabled with the reason. The first time, macOS asks the user to allow LightCraft (or
-the terminal running `lightcraft-cli`) to control Photos. After that, any client can add any file LightCraft can
+`export.addToPhotos` is disabled with the reason. The first time, macOS asks the user to allow Lumen (or
+the terminal running `lightcraft-cli`) to control Photos. After that, any client can add any file Lumen can
 read to the user's Photos library (and so to iCloud Photos when that is on), not only exported ones: see [Who
 can add what](apple-photos.md#how-it-works).
 

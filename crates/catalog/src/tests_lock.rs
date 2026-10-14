@@ -27,16 +27,16 @@ fn temp_dir(tag: &str) -> PathBuf {
 fn second_opener_is_refused_until_the_first_lets_go() {
     let _serial = serial();
     let dir = temp_dir("twice");
-    let first = LibraryLock::acquire(&dir, "LightCraft").unwrap();
+    let first = LibraryLock::acquire(&dir, "Lumen").unwrap();
     assert!(first.held());
     let owner: LockOwner = serde_json::from_slice(&std::fs::read(dir.join(OWNER)).unwrap()).unwrap();
-    assert_eq!((owner.pid, owner.program.as_str()), (std::process::id(), "LightCraft"));
+    assert_eq!((owner.pid, owner.program.as_str()), (std::process::id(), "Lumen"));
 
     let e = LibraryLock::acquire(&dir, "lightcraft-cli").unwrap_err();
     let LockError::InUse(Some(who)) = &e else { panic!("{e:?}") };
     assert_eq!(who.pid, std::process::id());
     let msg = e.to_string();
-    assert!(msg.contains("already open in LightCraft") && msg.contains(&format!("process {}", std::process::id())), "{msg}");
+    assert!(msg.contains("already open in Lumen") && msg.contains(&format!("process {}", std::process::id())), "{msg}");
 
     drop(first);
     assert!(!dir.join(OWNER).exists(), "the owner note goes with the lock");
@@ -53,8 +53,8 @@ fn leftover_lock_files_are_not_a_lock() {
     let _serial = serial();
     let dir = temp_dir("stale");
     std::fs::write(dir.join(LOCK), b"").unwrap();
-    std::fs::write(dir.join(OWNER), br#"{"pid":999999,"host":"elsewhere","program":"LightCraft","version":"0.2.0","since":1}"#).unwrap();
-    let l = LibraryLock::acquire(&dir, "LightCraft").unwrap();
+    std::fs::write(dir.join(OWNER), br#"{"pid":999999,"host":"elsewhere","program":"Lumen","version":"0.2.0","since":1}"#).unwrap();
+    let l = LibraryLock::acquire(&dir, "Lumen").unwrap();
     assert!(l.held());
     let owner: LockOwner = serde_json::from_slice(&std::fs::read(dir.join(OWNER)).unwrap()).unwrap();
     assert_eq!(owner.pid, std::process::id(), "the note now names this process");
@@ -81,7 +81,7 @@ fn lock_held_by_another_process_is_released_when_it_dies() {
         assert!(std::time::Instant::now() < deadline, "child never locked");
         std::thread::sleep(std::time::Duration::from_millis(20));
     }
-    let e = LibraryLock::acquire(&dir, "LightCraft").unwrap_err();
+    let e = LibraryLock::acquire(&dir, "Lumen").unwrap_err();
     let LockError::InUse(Some(who)) = &e else { panic!("{e:?}") };
     assert_eq!(who.pid, child.id());
     assert!(e.to_string().contains("on this computer") || who.host.is_empty(), "{e}");
@@ -89,7 +89,7 @@ fn lock_held_by_another_process_is_released_when_it_dies() {
     child.kill().unwrap(); // SIGKILL: no clean-up runs, like a crash
     child.wait().unwrap();
     assert!(dir.join(OWNER).exists(), "the crashed holder's note is left behind");
-    let l = LibraryLock::acquire(&dir, "LightCraft").expect("the OS released the dead process's lock");
+    let l = LibraryLock::acquire(&dir, "Lumen").expect("the OS released the dead process's lock");
     assert!(l.held());
     drop(l);
     let _ = std::fs::remove_dir_all(&dir);
@@ -115,7 +115,7 @@ fn lock_holder_child() {
 #[test]
 fn the_library_is_free_once_dropped_even_if_a_child_holds_a_copy() {
     let dir = temp_dir("copy");
-    let first = LibraryLock::acquire(&dir, "LightCraft").unwrap();
+    let first = LibraryLock::acquire(&dir, "Lumen").unwrap();
     let copy = first.descriptor_copy().unwrap();
     drop(first);
     let again = LibraryLock::acquire(&dir, "lightcraft-cli").expect("the library is free once its LibraryLock is dropped");
@@ -154,7 +154,7 @@ fn dropping_the_lock_frees_the_library_while_another_thread_spawns_processes() {
     let mut cycles = 0usize;
     let mut refused = Vec::new();
     while cycles < 200_000 && std::time::Instant::now() < deadline {
-        match LibraryLock::acquire(&dir, "LightCraft") {
+        match LibraryLock::acquire(&dir, "Lumen") {
             Ok(l) => assert!(l.held()), // dropped here: the next cycle must get it back
             Err(e) => refused.push(format!("cycle {cycles}: {e:?}")),
         }

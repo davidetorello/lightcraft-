@@ -1,4 +1,4 @@
-# Unsigned (ad-hoc) macOS build for trying LightCraft on an Apple-silicon Mac without compiling locally.
+# Unsigned (ad-hoc) macOS build for trying Lumen on an Apple-silicon Mac without compiling locally.
 # Run it from the Actions tab (Mac build ▸ Run workflow); the DMG is in the run's artifacts.
 # The real, signed and notarized build is release.yml.
 name: Mac build

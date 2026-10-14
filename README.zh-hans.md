@@ -8,7 +8,7 @@
 </p>
 
 
-<h1 align="center">LightCraft</h1>
+<h1 align="center">Lumen</h1>
 
 <h3 align="center">Your photos. Your pixels. Your machine.</h3>
 
@@ -35,7 +35,7 @@
 </p>
 
 <p align="center">
-  <a href="https://getartcraft.com/apps/lightcraft"><b>getartcraft.com 上的 LightCraft</b></a> ·
+  <a href="https://getartcraft.com/apps/lightcraft"><b>getartcraft.com 上的 Lumen</b></a> ·
   <a href="https://getartcraft.com/">ArtCraft</a> ·
   <a href="https://getartcraft.com/apps">全部 Crafting Apps</a>
 </p>
@@ -43,9 +43,9 @@
 <br>
 
 <p align="center">
-  <img src="docs/images/hero-tetons.jpg" alt="LightCraft 的编辑视图：放大视图中是安塞尔·亚当斯的《特顿山脉与蛇河》，右侧打开着 Light 与 Effects 面板，底部的胶片窗格中是四张展示照片" width="100%">
+  <img src="docs/images/hero-tetons.jpg" alt="Lumen 的编辑视图：放大视图中是安塞尔·亚当斯的《特顿山脉与蛇河》，右侧打开着 Light 与 Effects 面板，底部的胶片窗格中是四张展示照片" width="100%">
   <br>
-  <sub><i>安塞尔·亚当斯，《特顿山脉与蛇河》（1942）。公有领域，美国国家档案馆。在 LightCraft 中显影。</i></sub>
+  <sub><i>安塞尔·亚当斯，《特顿山脉与蛇河》（1942）。公有领域，美国国家档案馆。在 Lumen 中显影。</i></sub>
 </p>
 
 > [!NOTE]
@@ -72,7 +72,7 @@
 
 ## Edit like you mean it
 
-LightCraft 是一个装在单个原生应用里的完整暗房。每一项调整都是**非破坏性**的，原始文件永远不会被改动。
+Lumen 是一个装在单个原生应用里的完整暗房。每一项调整都是**非破坏性**的，原始文件永远不会被改动。
 每个滑块都经过一条**场景参考、宽色域、32 位浮点的管线**渲染：高光像胶片一样柔和滚降，阴影被提亮却不产生光晕，
 色彩从拍摄到导出始终保持干净。
 
@@ -129,7 +129,7 @@ LightCraft 是一个装在单个原生应用里的完整暗房。每一项调整
 ## Before & after
 
 按住 <kbd>\\</kbd> 偷看原图，按 <kbd>Y</kbd> 并排对比，或按 <kbd>Shift</kbd>+<kbd>Y</kbd> 分屏查看。
-下面每一张都是 LightCraft 的真实截图，由智能体通过[控制通道](#built-for-agents)自动截取。
+下面每一张都是 Lumen 的真实截图，由智能体通过[控制通道](#built-for-agents)自动截取。
 
 <table>
 <tr>
@@ -154,7 +154,7 @@ LightCraft 是一个装在单个原生应用里的完整暗房。每一项调整
 <p align="center">
   <img src="docs/images/masking.jpg" alt="蒙版面板中有一个线性天空蒙版和一个径向阳光光晕蒙版；径向渐变在湖景照片上以红色叠加层画在太阳周围" width="100%">
   <br>
-  <sub>叠加在线性「天空」蒙版之上的径向「阳光光晕」蒙版（色温 +40、曝光 +0.50）。<i>照片来自 LightCraft 程序生成的演示图库。</i></sub>
+  <sub>叠加在线性「天空」蒙版之上的径向「阳光光晕」蒙版（色温 +40、曝光 +0.50）。<i>照片来自 Lumen 程序生成的演示图库。</i></sub>
 </p>
 
 <br>
@@ -221,7 +221,7 @@ Landscape* 等等），每个都有 0 到 200 % 的**数量**滑块。你可以�
 
 ## Built for agents
 
-LightCraft 里的每一个菜单项、滑块、画笔笔触、裁剪手柄和按键都是一个**命令**，拥有稳定的 ID 和
+Lumen 里的每一个菜单项、滑块、画笔笔触、裁剪手柄和按键都是一个**命令**，拥有稳定的 ID 和
 JSON 参数。界面、键盘、CLI、JSON-lines 控制通道和一个 **MCP 服务器**全都通过同一个入口分发。
 智能体可以挑片、显影、给天空加蒙版并导出，而且能*看到*结果。
 
@@ -297,7 +297,7 @@ lightcraft --control 7980 ~/Pictures/trip
 
 ## Feature status
 
-LightCraft 很年轻，而且进展很快。**我们如实所处的位置**（细节见[路线图](ROADMAP.md#where-we-stand)）：
+Lumen 很年轻，而且进展很快。**我们如实所处的位置**（细节见[路线图](ROADMAP.md#where-we-stand)）：
 
 - **按功能数量算，我们达到了 Lightroom 的约 79%**（核心功能 98%），逐行记录在
   [docs/parity.md](docs/parity.md)。
@@ -343,7 +343,7 @@ LightCraft 很年轻，而且进展很快。**我们如实所处的位置**（�
 
 ```sh
 git clone https://github.com/storytold/lightcraft && cd lightcraft
-cargo run --release -p lightcraft                       # 打开你的图库（~/Pictures/LightCraft Library；新图库会先带演示照片）
+cargo run --release -p lightcraft                       # 打开你的图库（~/Pictures/Lumen Library；新图库会先带演示照片）
 cargo run --release -p lightcraft -- ~/Pictures/trip    # 导入你的照片（扫描文件夹，跳过重复项）
 cargo run --release -p lightcraft -- --memory           # 用完即弃的内存演示会话（不写入任何内容）
 cargo run --release -p lightcraft -- --control 7980     # 带自动化通道
@@ -366,7 +366,7 @@ git clone https://github.com/storytold/craft-fonts ../craft-fonts
 CRAFT_FONTS_DIR=../craft-fonts cargo run --release -p lightcraft
 ```
 
-不指定它时，LightCraft 构建和运行的方式完全相同，只是中文和日文文字没有字形。字体从不提交到
+不指定它时，Lumen 构建和运行的方式完全相同，只是中文和日文文字没有字形。字体从不提交到
 本仓库；见 [craftrules `standards/fonts.md`](https://github.com/storytold/craftrules/blob/main/standards/fonts.md)。
 
 **界面语言：** **编辑 → 语言**（English、简体中文、繁體中文（台灣）、日本語、Português (Brasil)、Español、Deutsch、Русский、Français）或 **设置 → 一般 →
@@ -374,13 +374,13 @@ CRAFT_FONTS_DIR=../craft-fonts cargo run --release -p lightcraft
 
 **日志：** 桌面应用把日志写到标准错误，以及设置文件夹里的 `logs/lightcraft.log`
 （Linux `$XDG_CONFIG_HOME/lightcraft/logs/`，默认 `~/.config/lightcraft/logs/`；macOS
-`~/Library/Application Support/LightCraft/logs/`；Windows `%APPDATA%\LightCraft\logs\`），从不写进图库。
+`~/Library/Application Support/Lumen/logs/`；Windows `%APPDATA%\Lumen\logs\`），从不写进图库。
 从桌面菜单或 Dock 启动没有终端，所以请把这个文件附在错误报告里（**帮助 ▸ 打开日志
 文件夹** 会在文件管理器中显示它）。每次启动会把
 上一个日志移到 `lightcraft.1.log`，再上一个移到 `lightcraft.2.log`，这样崩溃那次的日志能在下次启动后
 保留下来；文件到 16 MiB 停止增长，`--version` 和 `--help` 不写日志，带
-`LIGHTCRAFT_NO_PREFS` 运行时只写到标准错误。默认情况下 LightCraft 自己的 crate 记到 `info`，其他都记到
-`warn`。`LIGHTCRAFT_LOG=info` 或 `debug` 的行为和以前一样（LightCraft 自己的 crate 用该级别，其余只记警告和
+`LIGHTCRAFT_NO_PREFS` 运行时只写到标准错误。默认情况下 Lumen 自己的 crate 记到 `info`，其他都记到
+`warn`。`LIGHTCRAFT_LOG=info` 或 `debug` 的行为和以前一样（Lumen 自己的 crate 用该级别，其余只记警告和
 错误；其他值：只记警告和错误），并且优先于 `RUST_LOG`，后者会把默认值替换为
 env_logger 风格的指令，例如 `RUST_LOG=debug` 或 `RUST_LOG=warn,lightcraft_pipeline=trace`（以
 `*` 结尾的指令覆盖所有以它开头的目标，如 `lightcraft*=debug`）。panic 也会记录在那里，
@@ -403,7 +403,7 @@ nix develop github:storytold/lightcraft                # rust 工具链 + 原生
 ```nix
 # flake.nix
 inputs.lightcraft.url = "github:storytold/lightcraft";
-# 可选：使用你自己的 nixpkgs，而不是 LightCraft 锁定的那个
+# 可选：使用你自己的 nixpkgs，而不是 Lumen 锁定的那个
 # inputs.lightcraft.inputs.nixpkgs.follows = "nixpkgs";
 
 # 然后在 NixOS 或 home-manager 模块中（`inputs` 在作用域内）：
@@ -447,7 +447,7 @@ egui 前端是一个可替换的 crate；它下面没有任何东西知道 UI �
 
 ## Downloads
 
-**第一次用 LightCraft？** 从 [getartcraft.com 的 LightCraft 页面](https://getartcraft.com/apps/lightcraft)下载。那是最简单的安装方式。
+**第一次用 Lumen？** 从 [getartcraft.com 的 Lumen 页面](https://getartcraft.com/apps/lightcraft)下载。那是最简单的安装方式。
 
 **想要特定的构建或格式？** 在 GitHub 上，[最新发布](https://github.com/storytold/lightcraft/releases/latest)包含下面列出的所有构建，[全部发布](https://github.com/storytold/lightcraft/releases)则有更早的版本及其说明。文件名中的 `<ver>` 是版本号，`SHA256SUMS.txt` 列出了每个文件的校验和。
 
@@ -460,8 +460,8 @@ egui 前端是一个可替换的 crate；它下面没有任何东西知道 UI �
 | x86（32 位） | `lightcraft-<ver>-windows-x86.msi` | `lightcraft-<ver>-windows-x86-portable.zip` |
 
 安装程序和可执行文件都有代码签名。安装程序会询问安装位置（默认
-`C:\Program Files\LightCraft`；升级会留在你选择的文件夹），结束时有一页确认 LightCraft 已安装，
-并可选择启动它。无人值守安装：`msiexec /i lightcraft-<ver>-windows-x64.msi /qn INSTALLFOLDER="D:\Apps\LightCraft\"`。
+`C:\Program Files\Lumen`；升级会留在你选择的文件夹），结束时有一页确认 Lumen 已安装，
+并可选择启动它。无人值守安装：`msiexec /i lightcraft-<ver>-windows-x64.msi /qn INSTALLFOLDER="D:\Apps\Lumen\"`。
 
 ### macOS
 
@@ -496,7 +496,7 @@ egui 前端是一个可替换的 crate；它下面没有任何东西知道 UI �
 
 ## The Crafting Apps
 
-LightCraft 是 **Crafting Apps** 之一：来自 [ArtCraft](https://getartcraft.com/) 团队的免费开源创作工具，
+Lumen 是 **Crafting Apps** 之一：来自 [ArtCraft](https://getartcraft.com/) 团队的免费开源创作工具，
 每一个都用 Rust 从零编写，每一个都能独立使用。
 
 | | 应用 | 用途 | 代码 | 了解更多 |
@@ -504,7 +504,7 @@ LightCraft 是 **Crafting Apps** 之一：来自 [ArtCraft](https://getartcraft.
 | <img src="https://raw.githubusercontent.com/storytold/photocraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.photocraft.png" alt="" width="32" height="32"> | **PhotoCraft** | 图像编辑：图层、蒙版、文字和真正的 PSD 文件 | [GitHub](https://github.com/storytold/photocraft) | [网站](https://getartcraft.com/apps/photocraft) |
 | <img src="https://raw.githubusercontent.com/storytold/vectorcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.vectorcraft.png" alt="" width="32" height="32"> | **VectorCraft** | 矢量插画 | [GitHub](https://github.com/storytold/vectorcraft) | [网站](https://getartcraft.com/apps/vectorcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/filmcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.filmcraft.png" alt="" width="32" height="32"> | **FilmCraft** | 视频剪辑、调色与声音 | [GitHub](https://github.com/storytold/filmcraft) | [网站](https://getartcraft.com/apps/filmcraft) |
-| <img src="https://raw.githubusercontent.com/storytold/lightcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.lightcraft.png" alt="" width="32" height="32"> | **LightCraft** | **照片图库与 raw 显影 · 你在这里** | [GitHub](https://github.com/storytold/lightcraft) | [网站](https://getartcraft.com/apps/lightcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/lightcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.lightcraft.png" alt="" width="32" height="32"> | **Lumen** | **照片图库与 raw 显影 · 你在这里** | [GitHub](https://github.com/storytold/lightcraft) | [网站](https://getartcraft.com/apps/lightcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | 阅读、整理和保护 PDF | [GitHub](https://github.com/storytold/pdfcraft) | [网站](https://getartcraft.com/apps/pdfcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/effectcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.effectcraft.png" alt="" width="32" height="32"> | **EffectCraft** | 动态图形与视觉特效 | [GitHub](https://github.com/storytold/effectcraft) | [网站](https://getartcraft.com/apps/effectcraft) |
 | <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | 页面排版与出版 | [GitHub](https://github.com/storytold/designcraft) | [网站](https://getartcraft.com/apps/designcraft) |
@@ -530,32 +530,32 @@ LightCraft 是 **Crafting Apps** 之一：来自 [ArtCraft](https://getartcraft.
   <a href="https://discord.gg/artcraft"><b>discord.gg/artcraft</b></a> ·
   <a href="https://getartcraft.com/">getartcraft.com</a> ·
   <a href="https://getartcraft.com/apps">The Crafting Apps</a> ·
-  <a href="https://getartcraft.com/apps/lightcraft">LightCraft</a>
+  <a href="https://getartcraft.com/apps/lightcraft">Lumen</a>
 </p>
 
 <br>
 
 ## License and credits
 
-LightCraft 采用 [MIT](LICENSE-MIT) 或 [Apache-2.0](LICENSE-APACHE) 双许可，任你选择。
-Copyright (c) 2026 ArtCraft Team and the LightCraft contributors. 必需的声明见 [NOTICE](NOTICE)。
+Lumen 采用 [MIT](LICENSE-MIT) 或 [Apache-2.0](LICENSE-APACHE) 双许可，任你选择。
+Copyright (c) 2026 ArtCraft Team and the Lumen contributors. 必需的声明见 [NOTICE](NOTICE)。
 
 随附的字体、图标、图像和其他资源保留各自的开放许可；每一项都在
 [assets/ATTRIBUTION.md](assets/ATTRIBUTION.md) 中列出了作者、来源和许可。
 
 展示照片是经 Wikimedia Commons 使用的公有领域作品：安塞尔·亚当斯，*《特顿山脉与蛇河》*
 （1942，美国国家档案馆）；多萝西娅·兰格，*《移民母亲》*（1936，美国国会图书馆）；比尔·安德斯／NASA，
-*《地出》*（1968）；NASA，*《蓝色弹珠》*（1972）。演示图库由 LightCraft 程序生成。界面字体：
+*《地出》*（1968）；NASA，*《蓝色弹珠》*（1972）。演示图库由 Lumen 程序生成。界面字体：
 Inter（SIL OFL 1.1）。用 [craft-fonts](https://github.com/storytold/craft-fonts) 构建的版本（所有正式发布版）
 还会内嵌它的中文和日文字体（Noto Sans CJK SC、BIZ UDPGothic、BIZ UDMincho、Shippori Mincho；SIL OFL 1.1），列在其
 [ATTRIBUTION.md](https://github.com/storytold/craft-fonts/blob/main/ATTRIBUTION.md) 中。所有图标均为原创。
 
 [`docs/brand/`](docs/brand/) 中的 ArtCraft 名称、字标和标志是
 ArtCraft 团队的商标，不在本许可范围内。它们只能在未修改的情况下，作为
-本仓库和 LightCraft 的一部分，按 [`docs/brand/LICENSE-brand.txt`](docs/brand/LICENSE-brand.txt) 使用。
+本仓库和 Lumen 的一部分，按 [`docs/brand/LICENSE-brand.txt`](docs/brand/LICENSE-brand.txt) 使用。
 分支和修改版本必须移除它们。
 
-<sub>Adobe、Photoshop、Illustrator、Premiere Pro、Lightroom、Acrobat、After Effects 和 InDesign 是 Adobe Inc. 在美国和／或其他国家的商标或注册商标。LightCraft 是一个独立的开源项目，与 Adobe Inc. 无隶属关系，也未获其赞助或认可；这些名称仅用于说明它所兼容的工作流。</sub>
+<sub>Adobe、Photoshop、Illustrator、Premiere Pro、Lightroom、Acrobat、After Effects 和 InDesign 是 Adobe Inc. 在美国和／或其他国家的商标或注册商标。Lumen 是一个独立的开源项目，与 Adobe Inc. 无隶属关系，也未获其赞助或认可；这些名称仅用于说明它所兼容的工作流。</sub>
 
 <p align="center">
   <a href="https://getartcraft.com/"><img alt="ArtCraft" src="docs/brand/artcraft-mark.svg" width="28"></a><br>

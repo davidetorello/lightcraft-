@@ -1,4 +1,4 @@
-//! Where LightCraft keeps per-user data on this machine: the config folder (app settings, camera
+//! Where Lumen keeps per-user data on this machine: the config folder (app settings, camera
 //! profiles, face and denoise models).
 //!
 //! Hosts that have a file system (the desktop app, the CLI, the MCP server) share these defaults so a model
@@ -18,7 +18,7 @@ enum Platform {
     Other,
 }
 
-/// LightCraft's settings folder. A nonempty `$LIGHTCRAFT_CONFIG_DIR` overrides the platform default.
+/// Lumen's settings folder. A nonempty `$LIGHTCRAFT_CONFIG_DIR` overrides the platform default.
 /// The override is the complete directory; no application-name suffix is appended. An explicitly
 /// empty value disables the settings directory instead of falling back to a personal profile.
 pub fn config_dir() -> Option<PathBuf> {

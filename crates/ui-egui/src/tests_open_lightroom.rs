@@ -1,5 +1,5 @@
 //! Issue #891: File ▸ Open Library… given a Lightroom Classic catalog folder doesn't make a
-//! LightCraft library inside it. The library open now stays, and a dialog offers Import Lightroom
+//! Lumen library inside it. The library open now stays, and a dialog offers Import Lightroom
 //! Catalog… with the catalog found, which starts the import of that `.lrcat`.
 
 use std::time::Duration;
@@ -26,7 +26,7 @@ fn names(dir: &std::path::Path) -> Vec<std::ffi::OsString> {
 fn open_library_on_a_lightroom_catalog_offers_its_import() {
     let dir = std::env::temp_dir().join(format!("lc-ui-openlrcat-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
-    let lib = dir.join("LightCraft Library");
+    let lib = dir.join("Lumen Library");
     let lr = dir.join("Lightroom");
     std::fs::create_dir_all(lr.join("Lightroom Catalog Previews.lrdata")).unwrap();
     std::fs::create_dir_all(lr.join("Lightroom Catalog.lrcat-data")).unwrap();

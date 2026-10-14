@@ -1,6 +1,6 @@
 //! Native file dialogs for commands, off the UI thread (#191). A synchronous dialog blocks the
 //! thread that shows it, and on the desktop that was the UI thread: the window stopped answering
-//! the compositor (GNOME marked LightCraft "not responding" and offered to kill it), the menu the
+//! the compositor (GNOME marked Lumen "not responding" and offered to kill it), the menu the
 //! command came from stayed drawn, and the control channel went quiet until the dialog closed.
 //!
 //! A host that can run a dialog elsewhere installs a [`Picker`] in `Services`: it starts the

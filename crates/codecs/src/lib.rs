@@ -1,4 +1,4 @@
-//! Standard image codecs for LightCraft (layer L1).
+//! Standard image codecs for Lumen (layer L1).
 //!
 //! - [`sniff`] detects the container format (and flags camera raws for `lightcraft-raw`).
 //! - [`decode`] decodes JPEG, PNG, TIFF, WebP, GIF, BMP, PSD (merged composite) and JPEG XL into

@@ -1,4 +1,4 @@
-//! `lightcraft-cli`: headless LightCraft.
+//! `lightcraft-cli`: headless Lumen.
 //!
 //! ```text
 //! lightcraft-cli run [--demo | --library DIR | --connect [ADDR]] [--import PATH]… CMD [key=value…]…
@@ -26,7 +26,7 @@ use lightcraft_mcp::{Backend, DEFAULT_ADDR, Headless, Remote, Server, expand_pat
 use serde_json::{Value, json};
 
 const USAGE: &str = "\
-lightcraft-cli — headless LightCraft (photo library + raw developer)
+lightcraft-cli — headless Lumen (photo library + raw developer)
 
 USAGE:
   lightcraft-cli run [OPTIONS] COMMAND [key=value | '{json}']… [COMMAND …]…
@@ -39,7 +39,7 @@ USAGE:
             develop.auto app.export path=/tmp/a.jpg longEdge=1600
       Options:
         --demo            headless, the procedural demo library
-        --library DIR     headless, open (or create) a LightCraft library; edits are saved
+        --library DIR     headless, open (or create) a Lumen library; edits are saved
         --import PATH     headless, import a file or folder first (repeatable)
         --connect [ADDR]  drive the running app (`lightcraft --control 7980`; default 127.0.0.1:7980)
         --script FILE|-   also run JSON lines {\"command\": id, \"params\": {…}} (or {\"method\": …})
@@ -49,7 +49,7 @@ USAGE:
       given files imported. Options:
         --connect [ADDR]  drive a running app instead (`lightcraft --control 7980`; default 127.0.0.1:7980)
         --demo            headless: start with the procedurally generated demo library
-        --library DIR     headless: open (or create) a persistent LightCraft library; edits are saved
+        --library DIR     headless: open (or create) a persistent Lumen library; edits are saved
         --compact         list only the helper tools (every command stays reachable via run_command)
   lightcraft-cli render <IN> -o <OUT> [OPTIONS]
       Develop one file and export it (.jpg, .png, .tif, .webp, .avif, .jxl, .psd or .dng by extension) with the
@@ -69,7 +69,7 @@ USAGE:
       Run the full app UI headlessly (no window, no GPU: CPU-rasterized egui) and write PNGs.
       Options:
         --demo            the procedural demo library (default unless --library or FILES)
-        --library DIR     open (or create) a LightCraft library
+        --library DIR     open (or create) a Lumen library
         --script FILE     JSON-lines control-protocol requests (docs/control-protocol.md), one
                           per line: {\"method\": \"ui.set\", \"params\": {\"view\": \"detail\"}}.
                           Replies go to stdout. `ui.screenshot` without a path writes -o (then
@@ -89,7 +89,7 @@ USAGE:
   lightcraft-cli synth-merge hdr|panorama -o DIR
       Write synthetic merge inputs (procedural scene; bracketed DNGs or overlapping PNG views).
   lightcraft-cli denoise-serve [OPTIONS]
-      Run AI Denoise tiles for LightCraft on other computers (LIGHTCRAFT_DENOISE_URL=<this host>:7990 and
+      Run AI Denoise tiles for Lumen on other computers (LIGHTCRAFT_DENOISE_URL=<this host>:7990 and
       LIGHTCRAFT_DENOISE_TOKEN there; see docs/denoise.md). Serves the installed model selected in Settings,
       on this computer's graphics card when it can run it, else the CPU. Plain TCP: listen on a VPN/LAN
       address (e.g. the Tailscale IP) or firewall the port to it. Options:
@@ -105,7 +105,7 @@ USAGE:
   lightcraft-cli calibrate [--max N] [--out DIR] FOLDERS/FILES…
       Fit a colour profile per camera model from raw files and their embedded camera JPEGs
       (Sony ARW, Nikon NEF, Fujifilm RAF, Canon CR2 and CR3): up to N files spread over the folders (default 300; 0 = all), pooled per
-      model, written as <model>.json to DIR (default: the profiles folder LightCraft reads,
+      model, written as <model>.json to DIR (default: the profiles folder Lumen reads,
       <config>/camera-profiles, or $LIGHTCRAFT_CAMERA_PROFILES). Raws of a profiled model then
       take their colour from the profile and only their tone from their own JPEG.
   lightcraft-cli --version | --help
@@ -131,7 +131,7 @@ fn library_error(dir: &str, e: lightcraft_engine::EngineError) -> String {
             "{dir}: {why}\nTo work with the library while the app has it open, start the app with `--control PORT` and use `lightcraft-cli mcp --connect 127.0.0.1:PORT`."
         ),
         e @ lightcraft_engine::EngineError::LightroomCatalog { .. } => format!(
-            "{e}\nOpen a LightCraft library with `--library DIR` (an empty folder makes a new one) and run `library.importLightroom` with the catalog's path."
+            "{e}\nOpen a Lumen library with `--library DIR` (an empty folder makes a new one) and run `library.importLightroom` with the catalog's path."
         ),
         e => format!("{dir}: {e}"),
     }
@@ -330,11 +330,11 @@ fn mcp(args: &[String]) -> Result<(), String> {
             }
             match Remote::connect(&addr) {
                 Ok(r) => {
-                    eprintln!("lightcraft-cli mcp: connected to LightCraft at {addr}");
+                    eprintln!("lightcraft-cli mcp: connected to Lumen at {addr}");
                     Box::new(r)
                 }
                 Err(e) => {
-                    eprintln!("lightcraft-cli mcp: LightCraft is not reachable at {addr} yet ({e}); will retry on each call");
+                    eprintln!("lightcraft-cli mcp: Lumen is not reachable at {addr} yet ({e}); will retry on each call");
                     Box::new(Remote::lazy(&addr))
                 }
             }
@@ -570,40 +570,40 @@ fn run(args: &[String]) -> Result<(), String> {
     if steps.is_empty() {
         return Err("run: no command given (see `lightcraft-cli commands`)".into());
     }
-    let mut backend: Box<dyn Backend> =
-        match connect {
-            Some(addr) => {
-                if demo || library.is_some() || !imports.is_empty() {
-                    return Err("--demo, --library and --import apply to headless mode only".into());
-                }
-                Box::new(Remote::connect(&addr).map_err(|e| {
-                    format!("LightCraft is not reachable at {addr} ({e}); start it with `lightcraft --control {}`", connect_port(&addr))
-                })?)
+    let mut backend: Box<dyn Backend> = match connect {
+        Some(addr) => {
+            if demo || library.is_some() || !imports.is_empty() {
+                return Err("--demo, --library and --import apply to headless mode only".into());
             }
-            None => {
-                let mut h = match &library {
-                    Some(dir) => {
-                        let mut h = Headless::default();
-                        h.session.open_library(dir, demo).map_err(|e| library_error(dir, e))?;
-                        library_warnings(&mut h.session, "lightcraft-cli");
-                        h
-                    }
-                    None if demo => Headless::demo(),
-                    None => Headless::default(),
-                };
-                if !imports.is_empty() {
-                    let paths = expand_paths(&imports);
-                    let r = h.session.execute("library.import", &json!({"paths": paths})).map_err(|e| e.to_string())?;
-                    // what follows acts on the imported photos (already-known files are reported as duplicates)
-                    let mut ids: Vec<Value> = r["imported"].as_array().cloned().unwrap_or_default();
-                    ids.extend(r["duplicates"].as_array().into_iter().flatten().filter_map(|d| d.get("existing").filter(|v| v.is_u64()).cloned()));
-                    if let Some(first) = ids.first().cloned() {
-                        h.session.execute("library.select", &json!({"ids": ids, "active": first})).map_err(|e| e.to_string())?;
-                    }
+            Box::new(
+                Remote::connect(&addr)
+                    .map_err(|e| format!("Lumen is not reachable at {addr} ({e}); start it with `lightcraft --control {}`", connect_port(&addr)))?,
+            )
+        }
+        None => {
+            let mut h = match &library {
+                Some(dir) => {
+                    let mut h = Headless::default();
+                    h.session.open_library(dir, demo).map_err(|e| library_error(dir, e))?;
+                    library_warnings(&mut h.session, "lightcraft-cli");
+                    h
                 }
-                Box::new(h)
+                None if demo => Headless::demo(),
+                None => Headless::default(),
+            };
+            if !imports.is_empty() {
+                let paths = expand_paths(&imports);
+                let r = h.session.execute("library.import", &json!({"paths": paths})).map_err(|e| e.to_string())?;
+                // what follows acts on the imported photos (already-known files are reported as duplicates)
+                let mut ids: Vec<Value> = r["imported"].as_array().cloned().unwrap_or_default();
+                ids.extend(r["duplicates"].as_array().into_iter().flatten().filter_map(|d| d.get("existing").filter(|v| v.is_u64()).cloned()));
+                if let Some(first) = ids.first().cloned() {
+                    h.session.execute("library.select", &json!({"ids": ids, "active": first})).map_err(|e| e.to_string())?;
+                }
             }
-        };
+            Box::new(h)
+        }
+    };
     let mut out = std::io::stdout().lock();
     let mut failed = 0;
     for s in &steps {

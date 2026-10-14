@@ -1,6 +1,6 @@
 # lightcraft-heif
 
-The optional HEIF / HEIC decoder of LightCraft: iPhone and Mac photos. [`heic-rs`](https://github.com/tbraun96/heic-rs)
+The optional HEIF / HEIC decoder of Lumen: iPhone and Mac photos. [`heic-rs`](https://github.com/tbraun96/heic-rs)
 (pure Rust, no `unsafe`, MIT OR Apache-2.0, written from the H.265 / HEIF specifications) reads the
 container and reconstructs the HEVC pictures; this crate turns them into 16-bit RGB itself so the
 result matches libheif to within one code value:
@@ -44,4 +44,4 @@ Feature `testdata` exposes `lightcraft_heif::testdata`: lossless synthetic HEIF 
   HEIC files are still recognised and opening one is a clear "HEIC/HEIF support isn't included in
   this build" error — the same policy as PhotoCraft.
 
-The crate depends on no other LightCraft crate; `codecs` → `heif` is the only edge between them.
+The crate depends on no other Lumen crate; `codecs` → `heif` is the only edge between them.

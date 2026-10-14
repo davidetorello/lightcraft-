@@ -1,4 +1,4 @@
-# Releasing LightCraft
+# Releasing Lumen
 
 The release pipeline is [`.github/workflows/release.yml`](../.github/workflows/release.yml).
 It runs on every push to the `release` branch. A maintainer can also dispatch it manually, with
@@ -14,7 +14,7 @@ still apply.
    marked as prereleases.
 3. Push to `release`, or dispatch the workflow on `release` (a dispatch on another branch is a dry run; see below).
 4. Check the workflow run and its artifacts. On success, the workflow creates or updates a **draft**
-   GitHub Release named `LightCraft v<version>`, targeted at the commit that triggered the run.
+   GitHub Release named `Lumen v<version>`, targeted at the commit that triggered the run.
    Review the draft and its `SHA256SUMS.txt`, then publish it in GitHub Releases when ready.
 
 The workflow replaces assets when it updates an existing draft. It stops rather than overwriting a

@@ -1,4 +1,4 @@
-//! A small CPU interpreter for the convolutional networks LightCraft bundles (the YuNet face detector).
+//! A small CPU interpreter for the convolutional networks Lumen bundles (the YuNet face detector).
 //!
 //! It runs checked convolution, affine/activation, broadcast, pooling, matrix and shape operators on
 //! float32 tensors. Unsupported semantics fail at load time. Dense convolutions use bounded im2col and

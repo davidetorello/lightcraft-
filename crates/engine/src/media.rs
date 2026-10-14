@@ -825,7 +825,7 @@ impl RenderJob {
         let was_loaded = matches!(self.source, SourceRef::Loaded(_));
         // The app is closing (issue #620): nobody is left to show this, and quitting waits for the
         // jobs that are running. Without this, one that lost the GPU mid-way would render on the CPU.
-        let closing = || lightcraft_gpu::shutting_down().then(|| "LightCraft is closing".to_string());
+        let closing = || lightcraft_gpu::shutting_down().then(|| "Lumen is closing".to_string());
         let source = match closing() {
             Some(e) => Err(e),
             None => self.source.load_source().and_then(|s| closing().map_or(Ok(s), Err)),

@@ -4,8 +4,8 @@
 //! Warnings and errors are shown by default. `LIGHTCRAFT_LOG` or `RUST_LOG` picks another level
 //! (`off`, `error`, `warn`, `info`, `debug`, `trace`); `LIGHTCRAFT_LOG` wins when both are set.
 //! `RUST_LOG` also accepts per-target directives (`lightcraft=debug,wgpu=warn`): a bare level
-//! applies to everything, and the most verbose `lightcraft…=level` directive sets LightCraft's.
-//! Below warnings only LightCraft's own records are shown, so `info` and `debug` aren't drowned
+//! applies to everything, and the most verbose `lightcraft…=level` directive sets Lumen's.
+//! Below warnings only Lumen's own records are shown, so `info` and `debug` aren't drowned
 //! out by the GPU and windowing libraries.
 
 use log::{Level, LevelFilter, Metadata, Record};

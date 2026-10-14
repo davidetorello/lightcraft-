@@ -193,7 +193,17 @@ fn show_inner(app: &mut LightcraftApp, ui: &mut egui::Ui) {
         } else if app.session.source == lightcraft_engine::LibrarySource::Folder {
             super::empty_message(ui, ui.max_rect(), "No photos in this folder", "Turn on Include subfolders, or pick another folder under Local");
         } else {
-            super::empty_message(ui, ui.max_rect(), "No photos", "Import photos with File → Import Photos… (Cmd+Shift+I), or drop them here");
+            let area = ui.max_rect();
+            super::empty_message(ui, area, "No photos", "Import photos with File → Import Photos… (Cmd+Shift+I), or drop them here");
+            let at = egui::Rect::from_center_size(area.center() + egui::vec2(0.0, 62.0), egui::vec2(180.0, 24.0));
+            let clicked = ui
+                .scope_builder(egui::UiBuilder::new().max_rect(at), |ui| {
+                    crate::widgets::text_button(ui, "importEmpty", "Import Photos…", false).clicked()
+                })
+                .inner;
+            if clicked {
+                let _ = app.run("file.addPhotos", serde_json::json!({}));
+            }
         }
         return;
     }

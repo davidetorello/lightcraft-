@@ -52,7 +52,7 @@ count, as Photos reports none until it is done.
   and holds it until it hands its files over (or is cancelled, fails or writes nothing). While an import is
   reserved or running, another (`export.addToPhotos`, or an export asking for Photos, refused before it writes
   anything) is refused with the number of the one in the way, so a retry never sends the same files twice and
-  an export is never turned away after writing its files. When LightCraft stops waiting (see the table below),
+  an export is never turned away after writing its files. When Lumen stops waiting (see the table below),
   Photos may still be importing: look in Photos before trying again.
 
 ### Which album
@@ -60,7 +60,7 @@ count, as Photos reports none until it is done.
 The album is looked for by its exact name (case included) among the albums at the **top level** of the
 Photos library. Albums inside folders are never used: when the only album of that name is in a folder, a new
 top-level album is made. When none is there, a new top-level album is made. When **more than one** top-level
-album has the name, nothing is imported and LightCraft says so: rename one of them in Photos, or use another
+album has the name, nothing is imported and Lumen says so: rename one of them in Photos, or use another
 name. (Photos' own list of albums includes those in folders, in no particular order, so the script checks
 each one's parent folder.)
 
@@ -69,7 +69,7 @@ Settings ▸ General ▸ *Copy items to the Photos library*. When it references 
 
 ## How it works
 
-LightCraft runs `/usr/bin/osascript` with a constant AppleScript (`SCRIPT` in
+Lumen runs `/usr/bin/osascript` with a constant AppleScript (`SCRIPT` in
 `crates/engine/src/apple_photos.rs`) that asks Photos, through its scripting interface, to import the files:
 `import … into album … skip check duplicates false`. The album is found or made first ([Which
 album](#which-album)). The script returns the new media items' ids. Files go to Photos 200 at a time (each path is an osascript argument, and
@@ -84,10 +84,10 @@ The album name and the file paths are never written into the script. They follow
 name or path can't change what the script does. A constant first argument keeps osascript from reading a
 name that starts with `-` as one of its own options.
 
-The first time, macOS asks whether LightCraft may control Photos. The answer is kept in System Settings ▸
-Privacy & Security ▸ Automation. macOS asks about the app that started LightCraft's work: the LightCraft app
+The first time, macOS asks whether Lumen may control Photos. The answer is kept in System Settings ▸
+Privacy & Security ▸ Automation. macOS asks about the app that started Lumen's work: the Lumen app
 when it was opened from the Finder or with `open`, but the **terminal** for `lightcraft-cli` and for a
-LightCraft started from a terminal (`cargo run`).
+Lumen started from a terminal (`cargo run`).
 
 **Packaged app.** The release app is signed with the hardened runtime. For it to be allowed to ask, it carries
 the `com.apple.security.automation.apple-events` entitlement (`packaging/macos/entitlements.plist`, also used
@@ -95,7 +95,7 @@ for `lightcraft-cli`), and its `Info.plist` has the `NSAppleEventsUsageDescripti
 prompt (`packaging/macos/Info.plist.in`). Without them macOS refuses the events (`-1743`) without asking.
 `cargo run` doesn't test this configuration; the manual test below uses the packaged app.
 
-**Who can add what.** `export.addToPhotos {paths}` adds any file LightCraft can read, given its absolute path,
+**Who can add what.** `export.addToPhotos {paths}` adds any file Lumen can read, given its absolute path,
 not only files it exported. So any client of the control port or the MCP server can put any readable image or
 video on the Mac into the user's Photos library, and from there into iCloud Photos when that is on. macOS asks
 for the Automation permission once per app, not per import, so after the first Allow nothing asks again. The
@@ -108,11 +108,11 @@ or the control port as giving it this too, and turn the control port on only whe
 
 | What you see | Why, and what to do |
 |---|---|
-| "LightCraft isn't allowed to control Photos…" | Permission refused (`-1743`). Turn on Photos under LightCraft (or your terminal app) in System Settings ▸ Privacy & Security ▸ Automation, then try again. |
+| "Lumen isn't allowed to control Photos…" | Permission refused (`-1743`). Turn on Photos under Lumen (or your terminal app) in System Settings ▸ Privacy & Security ▸ Automation, then try again. |
 | "Apple Photos couldn't be found…" | Photos isn't installed or couldn't be opened (`-600`, `-10810`, `-10814`, or no `/System/Applications/Photos.app`). |
 | "The import was cancelled in Photos." | Someone pressed Cancel in a Photos dialog (`-128`). |
 | "More than one album at the top level of Photos is named …" | Several top-level albums have that name; nothing was added. Rename one in Photos, or use another name. |
-| "Photos didn't finish adding the photos within N s…" / "didn't answer in time" | LightCraft waits ten minutes plus five seconds a file (at most two hours), then stops osascript. The ten minutes leave time to answer macOS's permission prompt and Photos' duplicates question. Photos may still be importing: look in Photos before trying again. |
+| "Photos didn't finish adding the photos within N s…" / "didn't answer in time" | Lumen waits ten minutes plus five seconds a file (at most two hours), then stops osascript. The ten minutes leave time to answer macOS's permission prompt and Photos' duplicates question. Photos may still be importing: look in Photos before trying again. |
 | "Apple Photos is still adding N file(s) from an earlier request (import K)…" / "An export is about to add its files to Apple Photos (import K)…" | One import at a time: wait for import K (`export.photosImports {job: K}`), then try again. |
 | "Photos added 2 of 3 files…" | A partial import: Photos skipped files it found to be duplicates (it may ask first) or couldn't read. |
 | "Apple Photos is only available on macOS" | The setting came from a Mac (a preset or Export with Previous); the Export dialog drops it on other platforms. |
@@ -124,29 +124,29 @@ new empty library first: hold ⌥ while opening Photos ▸ Create New).
 
 1. Package the app (ad-hoc signed unless `MACOS_SIGN_IDENTITY` is set): `packaging/macos/package.sh --arch
    aarch64` (or `x86_64` on an Intel Mac). Check its entitlement: `codesign -d --entitlements -
-   target/macos-package/LightCraft.app` lists `com.apple.security.automation.apple-events`. With a Developer ID
+   target/macos-package/Lumen.app` lists `com.apple.security.automation.apple-events`. With a Developer ID
    build, also run the notarized DMG from `dist/release/`.
-2. Open it from the Finder, or with `open target/macos-package/LightCraft.app --args --demo` (not by running
+2. Open it from the Finder, or with `open target/macos-package/Lumen.app --args --demo` (not by running
    the binary in a terminal, which makes the terminal the app macOS asks about).
-3. Select three photos, choose File ▸ Export…, set a folder (e.g. `~/Pictures/LightCraft Exports`), tick **Add
-   to Apple Photos**, type the album `LightCraft test "1"` and press OK.
-4. macOS asks whether **LightCraft** may control Photos, showing the usage text from `Info.plist`: allow it.
-   Expected: the toast reads "Exported 3 of 3 photos · 3 added to Apple Photos album “LightCraft test "1"”",
+3. Select three photos, choose File ▸ Export…, set a folder (e.g. `~/Pictures/Lumen Exports`), tick **Add
+   to Apple Photos**, type the album `Lumen test "1"` and press OK.
+4. macOS asks whether **Lumen** may control Photos, showing the usage text from `Info.plist`: allow it.
+   Expected: the toast reads "Exported 3 of 3 photos · 3 added to Apple Photos album “Lumen test "1"”",
    and a top-level album of that name holds the three images.
 5. Export the same photos again with the same settings. Expected: Photos asks about duplicates or imports them
    again; the toast reports the count Photos returned (a partial import shows its warning).
 6. Albums: in Photos make a folder holding an album `Nested`, then export into `Nested`. Expected: a new
    top-level album `Nested` gets the images, the one in the folder doesn't. Then make a second top-level album
    `Nested` and export again. Expected: nothing is added, and the toast says more than one album has the name.
-7. Permission refused: in System Settings ▸ Privacy & Security ▸ Automation turn off Photos under LightCraft,
-   export again. Expected: the files are written, and the toast says to allow LightCraft there. Turn it back
+7. Permission refused: in System Settings ▸ Privacy & Security ▸ Automation turn off Photos under Lumen,
+   export again. Expected: the files are written, and the toast says to allow Lumen there. Turn it back
    on.
 8. No album: keep Add to Apple Photos ticked, clear the Album field and export. Expected: the images land in the
    library, in no album.
 9. Hostile names: album `-e`, then `a\b`, and an export folder whose name contains `"` and `'`; a name with a
    line break through the CLI: `lightcraft-cli run --demo app.export dir=/tmp/lc-photos addToPhotos=true
    "photosAlbum=$(printf 'two\nlines')"`. Expected: albums named exactly so; nothing else happens.
-10. The window stays responsive: start the app with `open target/macos-package/LightCraft.app --args --demo
+10. The window stays responsive: start the app with `open target/macos-package/Lumen.app --args --demo
     --control 18999`, then send `{"method": "engine.execute", "params": {"command": "export.addToPhotos",
     "params": {"paths": ["/tmp/lc-photos/<file>.jpg"]}}}` to port 18999 (`docs/control-protocol.md`).
     Expected: an immediate `{"job": …, "running": true}`; the app keeps responding; a toast when Photos is done;
@@ -163,7 +163,7 @@ Report the toast or JSON, and the macOS and Photos versions.
 - Albums inside folders are never used ([Which album](#which-album)).
 - Photos' duplicate check stays on, so Photos may ask about duplicates; what it skips shows as a partial import.
 - Cancelling a running export cancels the Photos step too; a Photos import already started can't be stopped
-  from LightCraft.
+  from Lumen.
 - One import runs (or is reserved by an export) at a time; a session remembers its last 32.
 - Quitting the desktop app while Photos is importing doesn't wait for it: Photos may still finish the import,
-  but LightCraft won't show the outcome.
+  but Lumen won't show the outcome.

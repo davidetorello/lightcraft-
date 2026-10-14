@@ -1,4 +1,4 @@
-//! The LightCraft engine façade.
+//! The Lumen engine façade.
 //!
 //! Every user-visible action is a command with a stable id (`photo.rate`, `develop.set`,
 //! `album.create`, `mask.add`…) and JSON parameters. The egui UI, the CLI, the control channel and
@@ -89,15 +89,15 @@ pub enum EngineError {
     Catalog(#[from] lightcraft_catalog::CatalogError),
     /// The command's change is applied (in memory, undoable) but its journal records could not
     /// be written. They stay queued and are written by the next successful save.
-    #[error("saved in memory but not written to disk: {0}; LightCraft will retry")]
+    #[error("saved in memory but not written to disk: {0}; Lumen will retry")]
     NotSaved(String),
     /// Another process (the app, `lightcraft-cli`, another computer) has the library open.
     #[error("{0}")]
     LibraryInUse(String),
     /// The folder (or file) asked for is a Lightroom Classic catalog or part of one, not a
-    /// LightCraft library (issue #891): nothing was created or opened. `catalog`: the `.lrcat`
+    /// Lumen library (issue #891): nothing was created or opened. `catalog`: the `.lrcat`
     /// to import with `library.importLightroom`, when one was found.
-    #[error("{} is a Lightroom Classic catalog, not a LightCraft library; import it into a LightCraft library with File ▸ Import Lightroom Catalog…{}", path.display(), catalog.as_ref().map_or(String::new(), |c| format!(" ({})", c.display())))]
+    #[error("{} is a Lightroom Classic catalog, not a Lumen library; import it into a Lumen library with File ▸ Import Lightroom Catalog…{}", path.display(), catalog.as_ref().map_or(String::new(), |c| format!(" ({})", c.display())))]
     LightroomCatalog { path: std::path::PathBuf, catalog: Option<std::path::PathBuf> },
     #[error("{0}")]
     Other(String),
@@ -532,7 +532,7 @@ impl Session {
         rect
     }
 
-    /// Apply an op that is LightCraft's own bookkeeping rather than something the user did (faces found by the background
+    /// Apply an op that is Lumen's own bookkeeping rather than something the user did (faces found by the background
     /// scan, a raw's as-shot white read by a decode): journaled like any op, but not an undo step, and it leaves the
     /// redo stack alone.
     pub(crate) fn apply_system(&mut self, op: Op) -> Result<()> {

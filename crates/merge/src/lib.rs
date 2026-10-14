@@ -1,4 +1,4 @@
-//! LightCraft Photo Merge: HDR merge and panorama stitching (layer L3, no UI dependencies).
+//! Lumen Photo Merge: HDR merge and panorama stitching (layer L3, no UI dependencies).
 //!
 //! - [`frame`]: inputs — scene-linear frames from raw files (camera RGB) or standard images.
 //! - [`fusion`]: exposure brackets → one display-referred image by exposure fusion (Mertens et al.), without a

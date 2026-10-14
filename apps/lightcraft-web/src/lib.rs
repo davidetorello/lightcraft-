@@ -1,4 +1,4 @@
-//! LightCraft in the browser: the same egui UI as the desktop app, compiled to WASM.
+//! Lumen in the browser: the same egui UI as the desktop app, compiled to WASM.
 //!
 //! Build with `cargo xtask web` (→ `target/web-site/`), then serve that folder over HTTP (see
 //! `docs/web.md`). Differences from the desktop host:

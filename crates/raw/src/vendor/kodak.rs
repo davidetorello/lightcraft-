@@ -1,7 +1,7 @@
 //! Kodak DCS520C raw TIFF: the CFA sub-IFD holds one lossless JPEG (SOF3) stream of two components.
 //!
 //! Sources: TIFF 6.0 (container; `GrayResponseCurve` `0x123`; the CFA tags `CFARepeatPatternDim` and `CFAPattern`),
-//! ITU T.81 (lossless JPEG, process SOF3), LightCraft's own decoder in [`crate::ljpeg`], the file's `KodakIFD`
+//! ITU T.81 (lossless JPEG, process SOF3), Lumen's own decoder in [`crate::ljpeg`], the file's `KodakIFD`
 //! (`0x8290`, a plain IFD with absolute offsets) and our own black-box analysis of the one CC0 sample from
 //! raw.pixls.us (2573, DCS520C; every number below was measured on it):
 //!

@@ -1,4 +1,4 @@
-# LightCraft in the browser
+# Lumen in the browser
 
 `apps/lightcraft-web` runs the same egui UI as the desktop app (`crates/ui-egui`) in the browser,
 compiled to WebAssembly and drawn with WebGL2 (eframe's `glow` backend).
@@ -123,7 +123,7 @@ are the same in every version, so serve them with `Cache-Control: no-cache` (not
   - A picked or dropped photo whose bytes can't be stored is not added (it would be gone after
     a reload); a notice says why.
   - One tab at a time: the page holds a Web Lock (`navigator.locks`, `lightcraft-library`); a
-    second tab or window shows "LightCraft is already open in another tab" instead of loading
+    second tab or window shows "Lumen is already open in another tab" instead of loading
     its own copy (two copies would overwrite each other's saves). Browsers without Web Locks, or
     that refuse the lock request, aren't protected: the app starts without the guard.
   - If the stored library can't be opened, a notice says the session is temporary and nothing

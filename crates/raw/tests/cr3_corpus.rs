@@ -86,12 +86,12 @@ fn canon_r8_craw_sensor_is_exact() {
 }
 
 /// EOS R5 Mark II (raw.pixls.us 7881–7884, CC0). No external decoder was run on these: the hashes pin
-/// LightCraft's own decode. Lossless RAW is CRX 0x100, as in the oracle-checked fixtures above, with
+/// Lumen's own decode. Lossless RAW is CRX 0x100, as in the oracle-checked fixtures above, with
 /// odd-height (2825- and 1787-row) Bayer planes; every entropy stream decodes to its exact end. These
 /// low-ISO C-RAW files need no QP-map escape (most of the camera's files do; that is covered by the unit
 /// tests in `crx.rs`, see docs/cr3.md). The developed images match the camera's own previews.
 fn check_r5m2(name: &str, hash: u64, sensor: (usize, usize), developed: Option<(usize, usize)>) {
-    check_against(name, hash, sensor, developed, "the pinned LightCraft decode");
+    check_against(name, hash, sensor, developed, "the pinned Lumen decode");
 }
 
 #[test]

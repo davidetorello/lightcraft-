@@ -1,4 +1,4 @@
-//! Serves SAM 3 on this Mac's Metal GPU to one LightCraft editor over a loopback socket (an SSH
+//! Serves SAM 3 on this Mac's Metal GPU to one Lumen editor over a loopback socket (an SSH
 //! tunnel); see docs/ai-masks.md → Remote Metal inference.
 #![forbid(unsafe_code)]
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]

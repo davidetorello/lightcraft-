@@ -24,7 +24,7 @@ commands:
                   run the render benchmark, append to target/bench/history.jsonl, compare CPU time with
                   the previous run (default input: corpus/raw/arw-sony-a7m3-compressed.arw)
   ico <out.ico> <in.png>...
-                  pack square PNGs (<= 256 px) into a Windows .ico (see packaging/icons.sh)
+                  pack square PNGs (<= 256 px) into a Windows .ico (see packaging/icons.py)
   layers          enforce the crate dependency layering (plan/architecture.md §3)
   parity [--write]
                   check docs/parity-checklist.md (every cmd:/ctl: id and path it cites exists) and print the

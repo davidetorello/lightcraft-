@@ -2,7 +2,7 @@
 //! resuming, checks, the pure-Rust HTTPS client) is the `lightcraft-fetch` crate; this module
 //! says what SAM 3 needs and where it may come from.
 //!
-//! The weights are never part of LightCraft (SAM License, see docs/ai-masks.md); where they are
+//! The weights are never part of Lumen (SAM License, see docs/ai-masks.md); where they are
 //! downloaded from is configured by [`DEFAULT_MIRRORS`] and the user's own list.
 
 pub use lightcraft_fetch::*;
@@ -15,7 +15,7 @@ use std::path::Path;
 /// tokenizer files are small text files without a pinned hash yet: they are only parsed by the
 /// tokenizer (never executed) and capped in size.
 // TODO(maintainer): pin `vocab.json` and `merges.txt` (size + SHA-256) when the files are
-// uploaded to LightCraft's CDN.
+// uploaded to Lumen's CDN.
 pub const SAM3_FILES: &[FileSpec] = &[
     FileSpec { name: "vocab.json", size: None, sha256: None, max: 16 << 20 },
     FileSpec { name: "merges.txt", size: None, sha256: None, max: 16 << 20 },
@@ -30,14 +30,14 @@ pub const SAM3_FILES: &[FileSpec] = &[
 /// Size of the official `model.safetensors` (3.44 GB).
 pub const SAM3_WEIGHTS_SIZE: u64 = 3_439_938_512;
 
-/// Where LightCraft downloads the model from, in order: each is a base URL, and file `f` is at
-/// `<base>/<f>`. **Empty for now**: LightCraft has no download location of its own yet, so the
+/// Where Lumen downloads the model from, in order: each is a base URL, and file `f` is at
+/// `<base>/<f>`. **Empty for now**: Lumen has no download location of its own yet, so the
 /// in-app download needs the user's list (`LIGHTCRAFT_SAM3_MIRRORS` or the mirrors file, see
 /// [`mirrors`] and docs/ai-masks.md) until this is filled in.
 ///
 /// Hugging Face's `facebook/sam3` can't be a default: it is gated (each user must accept the
 /// SAM License there and download with their own token).
-// TODO(maintainer): add LightCraft's CDN locations (https, primary first), e.g.
+// TODO(maintainer): add Lumen's CDN locations (https, primary first), e.g.
 // "https://<cdn-host>/models/sam3/<revision>" — the files there must match `SAM3_FILES`.
 pub const DEFAULT_MIRRORS: &[&str] = &[];
 

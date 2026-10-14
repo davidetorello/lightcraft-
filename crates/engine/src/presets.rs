@@ -10,7 +10,7 @@ use serde_json::{Value, json};
 
 use crate::Session;
 
-/// File extension of LightCraft preset files.
+/// File extension of Lumen preset files.
 pub const LCPRESET_EXT: &str = "lcpreset";
 /// The `format` tag of a `.lcpreset` file.
 pub const LCPRESET_FORMAT: &str = "lightcraft.preset";

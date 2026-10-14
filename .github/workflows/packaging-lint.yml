@@ -55,7 +55,7 @@ jobs:
           fi
           # The interactive installer asks where to install and ends on a completion page (issues #18, #399).
           for want in '<UIRef Id="LightcraftUI" />' 'Value="InstallDirDlg"' '<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />' \
-              'Key="Software\LightCraft" Name="InstallFolder"' 'Value="LaunchLightcraft"'; do
+              'Key="Software\Lumen" Name="InstallFolder"' 'Value="LaunchLightcraft"'; do
             grep -qF "$want" packaging/windows/lightcraft.wxs || { echo "::error::lightcraft.wxs lost: $want"; exit 1; }
           done
           desktop-file-validate packaging/linux/ai.storyteller.lightcraft.desktop

@@ -150,7 +150,7 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
             // saving is failing: the cloud icon turns into a warning until a save succeeds
             let unsaved = app.session.unsaved().map(|(n, e)| {
                 crate::i18n::tr_format!(
-                    "{n} change{} saved in memory but not written to disk: {e}\nLightCraft retries automatically; quitting now would lose {}.",
+                    "{n} change{} saved in memory but not written to disk: {e}\nLumen retries automatically; quitting now would lose {}.",
                     if n == 1 { "" } else { "s" },
                     if n == 1 { "it" } else { "them" },
                     e = e,
@@ -163,6 +163,7 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
                 ("help", Icon::Help, "Keyboard shortcuts", "app.shortcuts"),
                 ("share", Icon::Share, "Export", "dialog.export"),
                 ("bell", Icon::Bell, "Activity", "panel.activity"),
+                ("import", Icon::Plus, "Import Photos… (Cmd+Shift+I): pick files, no dragging needed", "file.addPhotos"),
             ] {
                 let r = Rect::from_center_size(pos2(x, full.center().y), vec2(28.0, 28.0));
                 let resp = ui.interact(r, egui::Id::new(("top", id)), Sense::click()).on_hover_text(tip);
@@ -190,7 +191,12 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
             // Appearance Mode: a click steps Auto → Light → Dark → Auto; the icon shows the mode
             let (icon, mode) = appearance_icon(app.ui.settings.appearance_mode);
             let r = Rect::from_center_size(pos2(x, full.center().y), vec2(28.0, 28.0));
-            let tip = format!("{}: {}", crate::i18n::tr("Appearance Mode"), crate::i18n::tr(mode));
+            let tip = format!(
+                "{}: {} — {}",
+                crate::i18n::tr("Appearance Mode"),
+                crate::i18n::tr(mode),
+                crate::i18n::tr("click to switch between light, dark and automatic")
+            );
             let resp = ui.interact(r, egui::Id::new(("top", "appearance")), Sense::click()).on_hover_text(tip);
             register(ui.ctx(), "icon:appearance", r);
             paint(ui.painter(), r.shrink(5.0), icon, if resp.hovered() { t.text } else { t.icon });

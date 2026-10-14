@@ -1,4 +1,4 @@
-# Flatpak manifest for LightCraft, ready for a Flathub submission.
+# Flatpak manifest for Lumen, ready for a Flathub submission.
 #
 # Flatpak builds run offline, so the crate sources must be vendored first. From the repo root:
 #
@@ -27,7 +27,7 @@ finish-args:
   - --share=ipc
   # GPU access for the wgpu renderer (Vulkan, or GL as a fallback).
   - --device=dri
-  # The library lives in ~/Pictures/LightCraft Library by default, and imports usually come from
+  # The library lives in ~/Pictures/Lumen Library by default, and imports usually come from
   # Pictures. Open/Save dialogs go through the file-chooser portal (rfd's xdg-portal backend) and
   # drag-and-drop through the document portal, so picked folders elsewhere work without broad
   # filesystem access.

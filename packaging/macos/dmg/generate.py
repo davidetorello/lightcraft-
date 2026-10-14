@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate background.tiff and dmg-layout.DS_Store for the macOS DMG window (see README.md here).
 
-Needs resvg on PATH and:
+Needs:
     pip install 'pillow>=12' ds_store==1.3.3 mac_alias==2.2.3
 
 Runs on any OS, no Mac needed. Both outputs come from this script alone, so they carry nothing
@@ -12,8 +12,6 @@ from the machine that made them: no local paths, user or disk names, dates or vo
 
 import datetime
 import os
-import shutil
-import subprocess
 import sys
 import tempfile
 
@@ -24,25 +22,35 @@ from PIL import Image, ImageCms
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Keep in sync with package.sh (volume name) and README.md (layout).
-VOLUME = "LightCraft"
+VOLUME = "Lumen"
 WIDTH, HEIGHT = 660, 400  # window content, pt; the background's 1x size
 TITLE_BAR = 32
 ICON_SIZE = 128
-ICONS = {"LightCraft.app": (326, 205), "Applications": (574, 205)}
+ICONS = {"Lumen.app": (326, 205), "Applications": (574, 205)}
 # A fixed date for the alias and the colour profile. Finder never matches it against the image
 # (each build is a new volume): it finds the background by volume name and path.
 FIXED_DATE = datetime.datetime(2026, 10, 8, tzinfo=datetime.timezone.utc)
 
 
-def render(svg, width, out):
-    # The SVG's text is already outlined and no fonts are loaded, so every machine draws the
-    # same pixels.
-    subprocess.run(
-        ["resvg", "--skip-system-fonts", "-w", str(width), svg, out],
-        check=True,
-    )
-    with Image.open(out) as im:
-        return im.convert("RGB")
+PAPER = (0xEF, 0xE9, 0xDC)
+INK_FIELD = (17, 17, 18)  # the colour of the logo's own background
+PANEL = 232  # width of the dark panel on the left, pt
+SOURCE = os.path.join(HERE, "..", "..", "..", "assets", "app-icon", "source", "lumen-source.png")
+
+
+def render(_unused, width, out):
+    """The background at `width` px: a paper field (the area under the icons and their labels stays light,
+    because Finder draws the labels in black) and a dark panel with the Lumen logo on the left. Drawn with
+    Pillow only, from the logo in assets/app-icon/source, so every machine makes the same pixels."""
+    scale = width / WIDTH
+    img = Image.new("RGB", (width, round(HEIGHT * scale)), PAPER)
+    panel_w = round(PANEL * scale)
+    img.paste(Image.new("RGB", (panel_w, img.height), INK_FIELD), (0, 0))
+    with Image.open(SOURCE) as logo:
+        logo = logo.convert("RGB").resize((panel_w, panel_w), Image.LANCZOS)
+    img.paste(logo, (0, (img.height - panel_w) // 2))
+    img.save(out)
+    return img.convert("RGB")  # (a fresh image: saving left PNG options on this one)
 
 
 def srgb_profile():
@@ -139,9 +147,7 @@ def write_ds_store(out):
 
 
 def main():
-    if not shutil.which("resvg"):
-        sys.exit("error: resvg not found (brew install resvg / cargo install resvg --locked)")
-    write_tiff(os.path.join(HERE, "background.svg"), os.path.join(HERE, "background.tiff"))
+    write_tiff(None, os.path.join(HERE, "background.tiff"))
     write_ds_store(os.path.join(HERE, "dmg-layout.DS_Store"))
 
 

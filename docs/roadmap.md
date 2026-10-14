@@ -4,7 +4,7 @@
 
 Forward-looking plan. The summary with the headline numbers is [ROADMAP.md](../ROADMAP.md); the
 ranked shortfalls are [gaps.md](gaps.md); the numbers come from [target-app-parity.md](target-app-parity.md).
-LightCraft has no `cargo xtask scorecard`; the measured checklist is
+Lumen has no `cargo xtask scorecard`; the measured checklist is
 [parity-checklist.md](parity-checklist.md) (`cargo xtask parity`).
 
 ## Current focus
@@ -43,7 +43,7 @@ against the code, tests, issues and [gaps.md](gaps.md).
 
 **Result: passes.** Every core workflow runs end to end on macOS and the work survives quit and
 reopen; the partial rows degrade fidelity for some cameras and large files but don't stop the
-workflow, so LightCraft stays **alpha** (ready for real work ~61%, above the ~40% bar).
+workflow, so Lumen stays **alpha** (ready for real work ~61%, above the ~40% bar).
 
 ## After beta
 

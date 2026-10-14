@@ -1,20 +1,20 @@
 # Faces
 
-LightCraft reads the face names other apps (Lightroom, digiKam…) write into your photos, shows them in the loupe
+Lumen reads the face names other apps (Lightroom, digiKam…) write into your photos, shows them in the loupe
 (boxes you can switch off, resize and remove) and groups photos by person in the People view. This page is about the
 *models* that find and recognise faces by themselves.
 
 ## Nothing is bundled; every model is an opt-in download
 
-No model weights are part of LightCraft. Each one is a file you choose to get, from **Settings ▸ Faces**:
+No model weights are part of Lumen. Each one is a file you choose to get, from **Settings ▸ Faces**:
 
 - **Face detection:** [YuNet](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) (232 KB, MIT).
-  It runs in LightCraft's own code, with no extra runtime. It was trained on the WIDER FACE dataset; an MIT licence on
+  It runs in Lumen's own code, with no extra runtime. It was trained on the WIDER FACE dataset; an MIT licence on
   weights does not settle that dataset's terms, so this is flagged for the maintainer. It finds faces; it does not
   identify anyone. **Photo ▸ Detect Faces** offers the download the first time you use it.
 - **Face recognition models** are large (AuraFace is 261 MB), and their licences and training data deserve a decision by
   the person installing them. Everything works without one: names from XMP, the People view, the face boxes.
-- **Recognition runs in LightCraft's own pure-Rust CPU interpreter**, shared with the detector. Dense
+- **Recognition runs in Lumen's own pure-Rust CPU interpreter**, shared with the detector. Dense
   convolutions use bounded im2col and single-thread float32 GEMM (ndarray 0.17.2 / matrixmultiply 0.3.11, MIT or Apache-2.0, default/BLAS/threading features disabled);
   depthwise convolutions use row-wise Rust loops. There is no nested thread pool. No C or assembly is compiled by
   this dependency path. Desktop and CLI builds always include recognition (there is no separate cargo feature for it). The browser retains its existing model-install/background-scan restrictions.
@@ -44,7 +44,7 @@ does check is listed under "Agreement and regression coverage".
 1. A dialog shows the model's licence, whether commercial use is allowed, what it was trained on (or that this is not
    known) and which site the file comes from. **Download stays disabled until you tick "I have read these terms and
    accept them for my own use".** Nothing is fetched before that.
-2. LightCraft downloads the file from the model's own repository (GitHub for YuNet and SFace, Hugging Face for
+2. Lumen downloads the file from the model's own repository (GitHub for YuNet and SFace, Hugging Face for
    AuraFace), at an address pinned to a commit, over https, in pure Rust (the `lightcraft-fetch` crate: no `curl`, no
    OpenSSL). An interrupted download resumes where it stopped.
 3. The file must match the model's recorded size and SHA-256, or it is thrown away. A file that matches is installed
@@ -58,14 +58,14 @@ Adding a model is how you say you want it: once it is installed it is **chosen a
 further step. The one question is its licence, and that comes first.
 
 1. **Settings ▸ Faces ▸ Add a model file…**, or drop a `.onnx` file on the window.
-2. LightCraft looks at the file (it never runs it at this point): it recognises models it knows by their SHA-256, and
+2. Lumen looks at the file (it never runs it at this point): it recognises models it knows by their SHA-256, and
    for any other file it reads the input and output shapes and describes what it assumed (112 × 112 aligned faces,
    RGB, `(x − 127.5) / 127.5`, one vector per face: the ArcFace convention that InsightFace models also use).
 3. The same dialog shows the licence, whether commercial use is allowed and what the model was trained on, and
    **Install stays disabled until you tick the acceptance box**.
-4. The model is copied into LightCraft's models folder and checked against the original by hash.
+4. The model is copied into Lumen's models folder and checked against the original by hash.
 
-Non-commercial models (InsightFace, for example) can be added this way for your own use; LightCraft never bundles,
+Non-commercial models (InsightFace, for example) can be added this way for your own use; Lumen never bundles,
 hosts, downloads or links them from a picker, and the dialog says so.
 
 The newest model is the one in use. An earlier one stays installed, **Use** switches back, and each model keeps its own
@@ -75,10 +75,10 @@ discarded, never mixed into the new one's index.
 
 ### Bring your own models: `catalog.json`
 
-LightCraft's built-in list only holds models whose terms let the project point at them. For anything else (a stronger
+Lumen's built-in list only holds models whose terms let the project point at them. For anything else (a stronger
 recogniser whose weights are for research use, a model you trained, a mirror you trust) put a `catalog.json` in the models
 folder. Each entry is a model manifest plus the address to fetch it from, and it then gets the same **Download** button as
-a built-in model, with its licence notice shown before anything is fetched. LightCraft ships and links to none of them: what
+a built-in model, with its licence notice shown before anything is fetched. Lumen ships and links to none of them: what
 the file says, and whether you may use the weights, is yours to check (the dialog shows the notice you wrote, in a warning
 colour unless you marked the model `"commercial": "yes"`).
 
@@ -104,11 +104,11 @@ vector per face. A bad entry is reported in Settings ▸ Faces and skipped; the 
 (Add a model file…) is recognised by its hash and gets the terms you wrote. Models you cannot or do not want to list can
 still be added by file; non-commercial models are never offered by the built-in list.
 
-The models folder is `<config>/models` (`%APPDATA%\LightCraft\models` on Windows, `~/Library/Application Support/LightCraft/models`
+The models folder is `<config>/models` (`%APPDATA%\Lumen\models` on Windows, `~/Library/Application Support/Lumen/models`
 on macOS, `~/.config/lightcraft/models` on Linux), or `$LIGHTCRAFT_FACE_MODELS`. The desktop app, the CLI and the MCP
 server share it.
 
-## What is known about the models LightCraft recognises
+## What is known about the models Lumen recognises
 
 | Model | Licence of the weights | Trained on | Notes |
 | --- | --- | --- | --- |
@@ -159,7 +159,7 @@ reuse of padding, retained scratch/constant-copy limits, invalid manifests, over
 These establish inference agreement, not face-identification accuracy or Lightroom parity.
 
 The shared YuNet graph is also compared against the reference runtime on four synthetic pictures. It passes an absolute
-1e-6 plus relative 1e-3 tolerance. The reference's sigmoid uses a clamped rational approximation; LightCraft keeps its existing
+1e-6 plus relative 1e-3 tolerance. The reference's sigmoid uses a clamped rational approximation; Lumen keeps its existing
 exponential sigmoid. Tiny confidence outputs differ by at most 4.47e-7 absolute (6.44% relative on the blank picture),
 far below the 0.6 detection threshold. Neither pinned recognizer uses Sigmoid. No approximate activation or reduced
 precision was introduced to get the speed figures.
@@ -201,7 +201,7 @@ photos in the set.
 ## Suggesting who is in a photo
 
 With **Recognise faces** switched on in Settings ▸ Faces and a recognition model chosen (**Use**; the switch cannot be
-turned on before one is, and turns itself off when the last recogniser is removed), LightCraft works out, in
+turned on before one is, and turns itself off when the last recogniser is removed), Lumen works out, in
 the background, what each face in your library looks like to the model, and uses the faces you have already named to
 suggest names for the ones you have not:
 
@@ -226,7 +226,7 @@ Turning recognition on starts a scan of the whole library, once, in the backgrou
 - A photo with **no** face boxes at all is searched with the detector, and what it is sure of becomes that photo's unnamed
   face boxes (marked "Detected by YuNet", so a manual Detect Faces replaces them), embedded in the same pass. Photos are
   searched once: `face-scanned.bin` in the library folder remembers which, so a photo whose boxes you remove is not boxed
-  again. These boxes are LightCraft's own bookkeeping: not an undo step, never written to a sidecar.
+  again. These boxes are Lumen's own bookkeeping: not an undo step, never written to a sidecar.
 - Photos you have named faces in go first, then the rest. Raw files are read through the camera's embedded preview (much
   faster than decoding the raw); everything else is rendered at 2048 pixels.
 - **How hard it works follows what you are doing.** The app tells the engine on every call to `faces.pump`, which is made
@@ -284,7 +284,7 @@ since you look at each one before anything is named.
 
 How well it works: on 755 named faces of marble busts from one museum folder (each face hidden in turn and matched against
 shots taken more than five seconds apart), SFace named the right person first 95.5% of the time and AuraFace 94.7%; at
-the starting thresholds LightCraft suggests (SFace 0.55, AuraFace 0.40) about 97% of the suggestions were right. Busts are
+the starting thresholds Lumen suggests (SFace 0.55, AuraFace 0.40) about 97% of the suggestions were right. Busts are
 a hard case in some ways (no skin or hair to go by) and an easy one in others (the same sculpture looks the same in every
 shot), so check a model on your own photos before trusting it:
 
