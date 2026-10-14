@@ -104,7 +104,7 @@ USAGE:
   lightcraft-cli controls [--json]   list every develop control id with its range
   lightcraft-cli calibrate [--max N] [--out DIR] FOLDERS/FILES…
       Fit a colour profile per camera model from raw files and their embedded camera JPEGs
-      (Sony ARW, Nikon NEF, Fujifilm RAF, Canon CR3): up to N files spread over the folders (default 300; 0 = all), pooled per
+      (Sony ARW, Nikon NEF, Fujifilm RAF, Canon CR2 and CR3): up to N files spread over the folders (default 300; 0 = all), pooled per
       model, written as <model>.json to DIR (default: the profiles folder LightCraft reads,
       <config>/camera-profiles, or $LIGHTCRAFT_CAMERA_PROFILES). Raws of a profiled model then
       take their colour from the profile and only their tone from their own JPEG.
@@ -187,7 +187,7 @@ fn main() -> ExitCode {
 /// Raw files below `path` (or `path` itself), skipping hidden and NAS metadata folders.
 fn raw_files(path: &Path, out: &mut Vec<std::path::PathBuf>, depth: usize) {
     let is_raw = |p: &Path| {
-        p.extension().and_then(|e| e.to_str()).is_some_and(|e| ["arw", "nef", "nrw", "raf", "cr3"].iter().any(|x| e.eq_ignore_ascii_case(x)))
+        p.extension().and_then(|e| e.to_str()).is_some_and(|e| ["arw", "nef", "nrw", "raf", "cr3", "cr2"].iter().any(|x| e.eq_ignore_ascii_case(x)))
     };
     if path.is_file() {
         if is_raw(path) {

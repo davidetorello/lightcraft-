@@ -84,6 +84,18 @@ fn calibrate_reads_cr3_inputs_and_reports_bad_files() {
     assert!(stderr.contains("invalid.CR3") && stderr.contains("no profile written"), "{stderr}");
 }
 
+#[test]
+fn calibrate_reads_cr2_inputs_and_reports_bad_files() {
+    let input = tmp("invalid.CR2");
+    std::fs::write(&input, b"not a canon raw").unwrap();
+    let out = tmp("cr2-profiles");
+    let result = Command::new(BIN).args(["calibrate", "--out"]).arg(&out).arg(&input).output().unwrap();
+    assert!(!result.status.success());
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert!(stderr.contains("1 of 1 raw files"), "CR2 was silently ignored: {stderr}");
+    assert!(stderr.contains("invalid.CR2") && stderr.contains("no profile written"), "{stderr}");
+}
+
 fn mean(path: &std::path::Path) -> f64 {
     let d = lightcraft_codecs::decode(&std::fs::read(path).unwrap(), Default::default()).unwrap();
     let img = d.to_srgb8();
